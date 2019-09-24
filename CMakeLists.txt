@@ -7,4 +7,4 @@ set(SOURCES sources/main.cpp)
 
 include_directories(includes)
 
-add_executable(gxxnet ${SOURCES})
+add_executable(cxxm ${SOURCES})
