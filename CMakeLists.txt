@@ -3,7 +3,10 @@ project(cxxm)
 
 set(CMAKE_CXX_STANDARD 17)
 
-set(SOURCES sources/main.cpp)
+set(SOURCES
+#CXXM_BEGIN
+sources/main.cpp)
+#CXXM_END
 
 include_directories(includes)
 

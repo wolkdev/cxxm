@@ -13,7 +13,7 @@ std::filesystem::path GetCMakeFile()
     {
         path = path.parent_path();
 
-        const std::filesystem::path& cmakepath = path / "CMakeList.txt";
+        const std::filesystem::path& cmakepath = path / "CMakeLists.txt";
 
         if (std::filesystem::exists(cmakepath))
         {
@@ -30,7 +30,7 @@ void init(const std::string& _projectName)
     std::filesystem::create_directory("includes");
     std::filesystem::create_directory("sources");
 
-    std::ofstream source("CMakeList.txt");
+    std::ofstream source("sources/main.cpp");
 
     if (source.is_open())
     {
@@ -45,7 +45,7 @@ void init(const std::string& _projectName)
         source.close();
     }
 
-    std::ofstream file("CMakeList.txt");
+    std::ofstream file("CMakeLists.txt");
 
     if (file.is_open())
     {
@@ -109,7 +109,7 @@ void get_cmake_parts(
         bool begined = false;
         bool ended = false;
 
-        while (!file.eof() && !ended)
+        while (!file.eof())
         {
             if (!begined)
             {
@@ -137,25 +137,81 @@ void get_cmake_parts(
             {
                 _endPart += file.get();
             }
-            
         }
+
+        _endPart.resize(_endPart.length() - 1); // TODO check why weird char at the end
         
         file.close();
     }
 }
 
-int main(int _argc, char const* _argv[])
+void save_cmake_file(
+    const std::filesystem::path& _cmakepath,
+    const std::string& _startPart,
+    const std::string& _cxxmPart,
+    const std::string& _endPart)
+{
+    std::ofstream file(_cmakepath);
+
+    if (file.is_open())
+    {
+        file << _startPart;
+        file << "#CXXM_BEGIN";
+        file << _cxxmPart;
+        file << "#CXXM_END";
+        file << _endPart;
+
+        file.close();
+    }
+}
+
+void add_class(const std::string& _className)
 {
     const std::filesystem::path& cmakepath = GetCMakeFile();
 
     if (cmakepath.has_filename()) // cmake file found
     {
+        std::string startPart;
+        std::string cxxmPart;
+        std::string endPart;
+
+        get_cmake_parts(cmakepath, startPart, cxxmPart, endPart);
+
+        size_t pos = cxxmPart.find(')');
+
+        if (pos != std::string::npos)
+        {
+            cxxmPart.insert(pos, "\nsources/" + _className + ".cpp");
+
+            save_cmake_file(cmakepath, startPart, cxxmPart, endPart);
+        }
+
         std::cout << cmakepath << std::endl;
     }
-    
+}
+
+int main(int _argc, char const* _argv[])
+{   
     if (_argc > 1)
     {
-        std::string cmd = _argv[0];
+        std::string cmd = _argv[1];
+
+        if (cmd == "init")
+        {
+            if (_argc > 2)
+            {
+                std::string projectName = _argv[2];
+                init(projectName);
+            }
+        }
+        else if (cmd == "add")
+        {
+            if (_argc > 2)
+            {
+                std::string className = _argv[2];
+                add_class(className);
+            }
+        }
     }
 
     return 0;
