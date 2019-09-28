@@ -171,6 +171,8 @@ void add_class(const std::string& _className)
 
     if (cmakepath.has_filename()) // cmake file found
     {
+        // TODO : add class files
+
         std::string startPart;
         std::string cxxmPart;
         std::string endPart;
@@ -182,6 +184,42 @@ void add_class(const std::string& _className)
         if (pos != std::string::npos)
         {
             cxxmPart.insert(pos, "\nsources/" + _className + ".cpp");
+
+            save_cmake_file(cmakepath, startPart, cxxmPart, endPart);
+        }
+
+        std::cout << cmakepath << std::endl;
+    }
+}
+
+void remove_class(const std::string& _className)
+{
+    const std::filesystem::path& cmakepath = GetCMakeFile();
+
+    if (cmakepath.has_filename()) // cmake file found
+    {
+        // TODO : remove class files
+
+        std::string startPart;
+        std::string cxxmPart;
+        std::string endPart;
+
+        get_cmake_parts(cmakepath, startPart, cxxmPart, endPart);
+
+        std::string srcfile = "sources/" + _className + ".cpp";
+
+        size_t pos = cxxmPart.find(srcfile);
+
+        if (pos != std::string::npos)
+        {
+            if (cxxmPart[pos + srcfile.length()] == ')')
+            {
+                cxxmPart.replace(pos, pos + srcfile.length() - 1, "");
+            }
+            else
+            {
+                cxxmPart.replace(pos, pos + srcfile.length(), "");
+            }
 
             save_cmake_file(cmakepath, startPart, cxxmPart, endPart);
         }
@@ -210,6 +248,14 @@ int main(int _argc, char const* _argv[])
             {
                 std::string className = _argv[2];
                 add_class(className);
+            }
+        }
+        else if (cmd == "remove")
+        {
+            if (_argc > 2)
+            {
+                std::string className = _argv[2];
+                remove_class(className);
             }
         }
     }
