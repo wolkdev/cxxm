@@ -8,6 +8,44 @@
 #include <iostream>
 #include <string>
 
+std::string get_header_definition_name(
+    const std::filesystem::path& _headerRelativePath)
+{
+    std::string s = _headerRelativePath.string();
+
+    char c;
+    bool lastLowerCase = false;
+    bool currentUpperCase;
+
+    for (size_t i = 0; i < s.length(); i++)
+    {
+        c = s[i];
+
+        currentUpperCase = c >= 65 && c <= 92;
+
+        if (c == '/' || c == '\\')
+        {
+            s[i] = '_';
+            s.insert(i, "_");
+        }
+        else if (c == '.')
+        {
+            s[i] = '_';
+            s.insert(i, "_");
+        }
+        else if (currentUpperCase && lastLowerCase)
+        {
+            s.insert(i, "_");
+        }
+
+        s[i] = toupper(s[i]);
+
+        lastLowerCase =  c >= 97 && c <= 122;
+    }
+
+    return s;
+}
+
 void create_header_file(
     const std::filesystem::path& _headerPath,
     const std::string& _className)
