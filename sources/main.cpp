@@ -3,7 +3,11 @@
 
 int main(int _argc, char const* _argv[])
 {   
-    // TODO : maybe command manager + add/remove header only
+    // TODO :
+    // - maybe command manager
+    // - add/remove header only
+    // - "rename" command
+    // - Doc in the README.md
 
     if (_argc > 1)
     {
