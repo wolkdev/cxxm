@@ -47,6 +47,7 @@ std::string get_header_definition_name(
 }
 
 void create_header_file(
+    const std::filesystem::path& _headerRelativePath,
     const std::filesystem::path& _headerPath,
     const std::string& _className)
 {
@@ -54,18 +55,18 @@ void create_header_file(
 
     if (header.is_open())
     {
-        // TODO : format headerDefinition
-        std::string headerDefinition = _className + "__" + _headerPath.extension().string();
+        const std::string& headerDefinitionName =
+            get_header_definition_name(_headerRelativePath);
 
-        header << "#ifndef " << headerDefinition << "\n";
-        header << "#define " << headerDefinition << "\n";
+        header << "#ifndef " << headerDefinitionName << "\n";
+        header << "#define " << headerDefinitionName << "\n";
         header << "\n";
         header << "class " << _className << "\n";
         header << "{\n";
         header << "    \n";
         header << "};\n";
         header << "\n";
-        header << "#endif // !" << headerDefinition << "";
+        header << "#endif // !" << headerDefinitionName << "";
 
         header.close();
     }
@@ -102,22 +103,29 @@ bool add_source_to_cxxm_list(std::string& _list, const std::filesystem::path& _s
     return false;
 }
 
-bool remove_source_to_cxxm_list(std::string& _list, const std::filesystem::path& _source)
+bool remove_source_from_cxxm_list(std::string& _list, const std::filesystem::path& _source)
 {
     const std::string& source = _source.string();
     size_t pos = _list.find(source);
 
     if (pos != std::string::npos)
     {
-        size_t end = source.length() - 1;
+        size_t lenght = source.length();
 
-        if (_list[end + 1] == ')')
+        if (_list[pos + lenght] == ')')
         {
-            _list.replace(pos, end, "");
+            if (pos > 1) // pos : 0 (new line character)
+            {
+                _list.replace(pos - 1, lenght + 1, "");
+            }
+            else
+            {
+                _list.replace(pos, lenght, "");
+            }
         }
         else
         {
-            _list.replace(pos, end + 1, "");
+            _list.replace(pos, lenght + 1, "");
         }
 
         return true;
@@ -135,11 +143,12 @@ void add_class(const std::filesystem::path& _classRelativePath)
         const std::filesystem::path projectDir = cmakepath.parent_path();
 
         const std::string& className = _classRelativePath.filename().string();
-        const std::filesystem::path& headerRelativePath = "includes/" + _classRelativePath.string() + ".hpp";
+        const std::filesystem::path& headerCppRelativePath = _classRelativePath.string() + ".hpp";
+        const std::filesystem::path& headerRelativePath = "includes" / headerCppRelativePath;
         const std::filesystem::path& sourceRelativePath = "sources/" + _classRelativePath.string() + ".cpp";
 
-        create_header_file(projectDir / headerRelativePath, className);
-        create_source_file(headerRelativePath, projectDir / sourceRelativePath, className);
+        create_header_file(headerCppRelativePath, projectDir / headerRelativePath, className);
+        create_source_file(headerCppRelativePath, projectDir / sourceRelativePath, className);
 
         std::string startPart;
         std::string cxxmPart;
@@ -153,8 +162,13 @@ void add_class(const std::filesystem::path& _classRelativePath)
         }
         else
         {
-            // TODO : write it failed
+            std::cout << "Warning : Unable to add " << sourceRelativePath
+                << " into the CMakeLists.txt file" << std::endl;
         }
+    }
+    else
+    {
+        std::cout << "Error : Unable to locate the CMakeLists.txt file" << std::endl;
     }
 }
 
@@ -169,22 +183,27 @@ void remove_class(const std::filesystem::path& _classRelativePath)
         const std::filesystem::path& headerRelativePath = "includes/" + _classRelativePath.string() + ".hpp";
         const std::filesystem::path& sourceRelativePath = "sources/" + _classRelativePath.string() + ".cpp";
 
-        if (std::filesystem::exists(projectDir / headerRelativePath))
+        const std::filesystem::path& headerPath = projectDir / headerRelativePath;
+        const std::filesystem::path& sourcePath = projectDir / sourceRelativePath;
+
+        if (std::filesystem::exists(headerPath))
         {
-            std::filesystem::remove(projectDir / headerRelativePath);
+            std::filesystem::remove(headerPath);
         }
         else
         {
-            // TODO : write it failed
+            std::cout << "Warning : Unable to remove the file "
+                << headerPath << " (The file does not exists)" << std::endl;
         }
 
-        if (std::filesystem::exists(projectDir / sourceRelativePath))
+        if (std::filesystem::exists(sourcePath))
         {
-            std::filesystem::remove(projectDir / sourceRelativePath);
+            std::filesystem::remove(sourcePath);
         }
         else
         {
-            // TODO : write it failed
+            std::cout << "Warning : Unable to remove the file "
+                << sourceRelativePath << " (The file does not exists)" << std::endl;
         }
 
         std::string startPart;
@@ -193,13 +212,14 @@ void remove_class(const std::filesystem::path& _classRelativePath)
 
         get_cmake_parts(cmakepath, startPart, cxxmPart, endPart);
 
-        if (remove_source_to_cxxm_list(cxxmPart, sourceRelativePath))
+        if (remove_source_from_cxxm_list(cxxmPart, sourceRelativePath))
         {
             save_cmake_file(cmakepath, startPart, cxxmPart, endPart);
         }
         else
         {
-            // TODO : write it failed
+            std::cout << "Warning : Unable to remove " << sourceRelativePath
+                << " from the CMakeLists.txt file" << std::endl;
         }
     }
 }
