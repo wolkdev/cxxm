@@ -1,5 +1,39 @@
 
-#include "class_manager.hpp"
+#include "project.hpp"
+
+#include <filesystem>
+
+void add(const std::filesystem::path& _classRelativePath)
+{
+    project proj(project::find_directory_in_hierarchy());
+
+    if (proj.valid())
+    {
+        project::cxxclass classToAdd(_classRelativePath.string());
+
+        proj.create_header(classToAdd);
+        proj.create_source(classToAdd);
+        proj.add_class(classToAdd);
+
+        proj.save();
+    }
+}
+
+void remove(const std::filesystem::path& _classRelativePath)
+{
+    project proj(project::find_directory_in_hierarchy());
+
+    if (proj.valid())
+    {
+        project::cxxclass classToRemove(_classRelativePath.string());
+
+        proj.delete_header(classToRemove);
+        proj.delete_source(classToRemove);
+        proj.remove_class(classToRemove);
+
+        proj.save();
+    }
+}
 
 int main(int _argc, char const* _argv[])
 {   
@@ -18,7 +52,7 @@ int main(int _argc, char const* _argv[])
             if (_argc > 2)
             {
                 std::string projectName = _argv[2];
-                init(projectName);
+                project::create_new(projectName);
             }
         }
         else if (cmd == "add")
@@ -26,7 +60,7 @@ int main(int _argc, char const* _argv[])
             if (_argc > 2)
             {
                 std::string className = _argv[2];
-                add_class(className);
+                add(className);
             }
         }
         else if (cmd == "remove")
@@ -34,7 +68,7 @@ int main(int _argc, char const* _argv[])
             if (_argc > 2)
             {
                 std::string className = _argv[2];
-                remove_class(className);
+                remove(className);
             }
         }
     }

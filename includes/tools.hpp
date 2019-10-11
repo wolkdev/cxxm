@@ -4,7 +4,9 @@
 #include <iostream>
 #include <string>
 
-std::string peek_word(std::istream& _istream)
+#include <filesystem>
+
+inline std::string peek_word(std::istream& _istream)
 {
     std::streampos startPos = _istream.tellg();
 
@@ -21,12 +23,42 @@ std::string peek_word(std::istream& _istream)
     return word;
 }
 
-void skip_word(std::istream& _istream)
+inline void skip_word(std::istream& _istream)
 {
     while (_istream.peek() > 32)
     {
         _istream.get();
     }
+}
+
+inline std::filesystem::path to_unix_path(const std::filesystem::path& _path)
+{
+    std::string pathStr = _path.string();
+
+    for (size_t i = 0; i < pathStr.length(); i++)
+    {
+        if (pathStr[i] == '\\')
+        {
+            pathStr[i] = '/';
+        }
+    }
+
+    return pathStr;
+}
+
+inline std::filesystem::path to_win_path(const std::filesystem::path& _path)
+{
+    std::string pathStr = _path.string();
+    
+    for (size_t i = 0; i < pathStr.length(); i++)
+    {
+        if (pathStr[i] == '/')
+        {
+            pathStr[i] = '\\';
+        }
+    }
+
+    return pathStr;
 }
 
 #endif // !TOOLS__HPP
