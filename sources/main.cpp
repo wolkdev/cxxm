@@ -1,76 +1,64 @@
 
 #include "project.hpp"
+#include "cmd.hpp"
 
 #include <filesystem>
 
-void add(const std::filesystem::path& _classRelativePath)
+void add(const std::vector<cmd::arg>& _args)
 {
     project proj(project::find_directory_in_hierarchy());
 
     if (proj.valid())
     {
-        project::cxxclass classToAdd(_classRelativePath.string());
+        project::cxxclass classToAdd(_args[0].string);
 
         proj.create_header(classToAdd);
         proj.create_source(classToAdd);
-        proj.add_class(classToAdd);
 
-        proj.save();
+        if (proj.add_class(classToAdd))
+        {
+            proj.save();
+        }
     }
 }
 
-void remove(const std::filesystem::path& _classRelativePath)
+void remove(const std::vector<cmd::arg>& _args)
 {
     project proj(project::find_directory_in_hierarchy());
 
     if (proj.valid())
     {
-        project::cxxclass classToRemove(_classRelativePath.string());
+        project::cxxclass classToRemove(_args[0].string);
 
         proj.delete_header(classToRemove);
         proj.delete_source(classToRemove);
-        proj.remove_class(classToRemove);
 
-        proj.save();
+        if (proj.remove_class(classToRemove))
+        {
+            proj.save();
+        }
     }
 }
 
 int main(int _argc, char const* _argv[])
 {   
     // TODO :
-    // - maybe command manager
     // - add/remove header only
-    // - "rename" command
+    // - "rename/move" command
+    // - errors/warnings feedback -> cout
+    // - handle local and project global path
     // - Doc in the README.md
 
     if (_argc > 1)
     {
-        std::string cmd = _argv[1];
+        std::string command = _argv[1];
+        int argc = _argc - 2;
+        const char** argv = (argc > 0 ? &_argv[2] : nullptr);
 
-        if (cmd == "init")
-        {
-            if (_argc > 2)
-            {
-                std::string projectName = _argv[2];
-                project::create_new(projectName);
-            }
-        }
-        else if (cmd == "add")
-        {
-            if (_argc > 2)
-            {
-                std::string className = _argv[2];
-                add(className);
-            }
-        }
-        else if (cmd == "remove")
-        {
-            if (_argc > 2)
-            {
-                std::string className = _argv[2];
-                remove(className);
-            }
-        }
+        cmd commander;
+        commander.add("add", &add);
+        commander.add("remove", &remove);
+        commander.execute(command, argc, argv);
     }
 
     return 0;

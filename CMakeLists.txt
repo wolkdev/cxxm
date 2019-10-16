@@ -6,7 +6,8 @@ set(CMAKE_CXX_STANDARD 17)
 set(SOURCES
 #CXXM_BEGIN
 sources/main.cpp
-sources/project.cpp)
+sources/project.cpp
+sources/cmd.cpp)
 #CXXM_END
 
 include_directories(includes)
