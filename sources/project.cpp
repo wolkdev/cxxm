@@ -9,11 +9,11 @@ project::cxxclass::cxxclass(const std::string& _name)
 {
     className = std::filesystem::path(_name).filename().string();
 
-    headerCppRelativePath = _name + ".hpp";
-    sourceCppRelativePath = _name + ".cpp";
+    headerRelativePath = _name + ".hpp";
+    sourceRelativePath = _name + ".cpp";
 
-    headerRelativePath = "includes" / headerCppRelativePath;
-    sourceRelativePath = "sources" / sourceCppRelativePath;
+    headerProjectPath = "includes" / headerRelativePath;
+    sourceProjectPath = "sources" / sourceRelativePath;
 }
 
 project::project(const std::filesystem::path& _directory)
@@ -60,7 +60,23 @@ bool project::add_class(const cxxclass& _class)
 
     if (pos != std::string::npos)
     {
-        cxxmPart.insert(pos, "\n" + to_unix_path(_class.sourceRelativePath).string());
+        cxxmPart.insert(pos, "\n" + to_unix_path(_class.sourceProjectPath).string());
+
+        return true;
+    }
+
+    return false;
+}
+
+bool project::rename_class(const cxxclass& _from, const cxxclass& _to)
+{
+    const std::string& sourceFrom = to_unix_path(_from.sourceProjectPath).string();
+    const std::string& sourceTo = to_unix_path(_to.sourceProjectPath).string();
+    size_t pos = cxxmPart.find(sourceFrom);
+
+    if (pos != std::string::npos)
+    {
+        cxxmPart.replace(pos, sourceFrom.length(), sourceTo);
 
         return true;
     }
@@ -70,7 +86,7 @@ bool project::add_class(const cxxclass& _class)
 
 bool project::remove_class(const cxxclass& _class)
 {
-    const std::string& source = to_unix_path(_class.sourceRelativePath).string();
+    const std::string& source = to_unix_path(_class.sourceProjectPath).string();
     size_t pos = cxxmPart.find(source);
 
     if (pos != std::string::npos)
@@ -101,7 +117,7 @@ bool project::remove_class(const cxxclass& _class)
 
 bool project::create_header(const cxxclass& _class)
 {
-    std::ofstream header(directory() / _class.headerRelativePath);
+    std::ofstream header(directory() / _class.headerProjectPath);
 
     if (header.is_open())
     {
@@ -127,12 +143,12 @@ bool project::create_header(const cxxclass& _class)
 
 bool project::create_source(const cxxclass& _class)
 {
-    std::ofstream source(directory() / _class.sourceRelativePath);
+    std::ofstream source(directory() / _class.sourceProjectPath);
 
     if (source.is_open())
     {
         source << "\n";
-        source << "#include \"" << _class.headerCppRelativePath.string() << "\"\n";
+        source << "#include \"" << _class.headerRelativePath.string() << "\"\n";
         source << "\n";
 
         source.close();
@@ -143,9 +159,37 @@ bool project::create_source(const cxxclass& _class)
     return false;
 }
 
+bool project::move_header(const cxxclass& _from, const cxxclass& _to)
+{
+    const std::filesystem::path& headerPath = directory() / _from.headerProjectPath;
+
+    if (std::filesystem::exists(headerPath))
+    {
+        std::filesystem::rename(headerPath, directory() / _to.headerProjectPath);
+
+        return true;
+    }
+
+    return false;
+}
+
+bool project::move_source(const cxxclass& _from, const cxxclass& _to)
+{
+    const std::filesystem::path& headerPath = directory() / _from.sourceProjectPath;
+
+    if (std::filesystem::exists(headerPath))
+    {
+        std::filesystem::rename(headerPath, directory() / _to.sourceProjectPath);
+
+        return true;
+    }
+
+    return false;
+}
+
 bool project::delete_header(const cxxclass& _class)
 {
-    const std::filesystem::path& headerPath = directory() / _class.headerRelativePath;
+    const std::filesystem::path& headerPath = directory() / _class.headerProjectPath;
 
     if (std::filesystem::exists(headerPath))
     {
@@ -159,7 +203,7 @@ bool project::delete_header(const cxxclass& _class)
 
 bool project::delete_source(const cxxclass& _class)
 {
-    const std::filesystem::path& sourcePath = directory() / _class.sourceRelativePath;
+    const std::filesystem::path& sourcePath = directory() / _class.sourceProjectPath;
 
     if (std::filesystem::exists(sourcePath))
     {
@@ -260,7 +304,7 @@ bool project::parse_cmake_lists()
 
 std::string project::get_header_definition_name(const cxxclass& _class)
 {
-    std::string s = _class.headerCppRelativePath.string();
+    std::string s = _class.headerRelativePath.string();
 
     char c;
     bool lastLowerCase = false;

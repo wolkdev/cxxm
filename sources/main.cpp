@@ -22,6 +22,25 @@ void add(const std::vector<cmd::arg>& _args)
     }
 }
 
+void move(const std::vector<cmd::arg>& _args)
+{
+    project proj(project::find_directory_in_hierarchy());
+
+    if (proj.valid())
+    {
+        project::cxxclass classToMove(_args[0].string);
+        project::cxxclass classMoved(_args[1].string);
+
+        proj.move_header(classToMove, classMoved);
+        proj.move_source(classToMove, classMoved);
+
+        if (proj.rename_class(classToMove, classMoved))
+        {
+            proj.save();
+        }
+    }
+}
+
 void remove(const std::vector<cmd::arg>& _args)
 {
     project proj(project::find_directory_in_hierarchy());
@@ -41,10 +60,10 @@ void remove(const std::vector<cmd::arg>& _args)
 }
 
 int main(int _argc, char const* _argv[])
-{   
+{
     // TODO :
     // - add/remove header only
-    // - "rename/move" command
+    // - "rename/move" command (rename in header and source)
     // - errors/warnings feedback -> cout
     // - handle local and project global path
     // - Doc in the README.md
@@ -57,6 +76,7 @@ int main(int _argc, char const* _argv[])
 
         cmd commander;
         commander.add("add", &add);
+        commander.add("move", &move);
         commander.add("remove", &remove);
         commander.execute(command, argc, argv);
     }

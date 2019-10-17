@@ -10,10 +10,10 @@ class project
     struct cxxclass
     {
         std::string className;
-        std::filesystem::path headerCppRelativePath;
-        std::filesystem::path sourceCppRelativePath;
         std::filesystem::path headerRelativePath;
         std::filesystem::path sourceRelativePath;
+        std::filesystem::path headerProjectPath;
+        std::filesystem::path sourceProjectPath;
 
         cxxclass(const std::string& _name);
     };
@@ -36,10 +36,14 @@ class project
     std::filesystem::path directory() const;
 
     bool add_class(const cxxclass& _class);
+    bool rename_class(const cxxclass& _from, const cxxclass& _to);
     bool remove_class(const cxxclass& _class);
 
     bool create_header(const cxxclass& _class);
     bool create_source(const cxxclass& _class);
+
+    bool move_header(const cxxclass& _from, const cxxclass& _to);
+    bool move_source(const cxxclass& _from, const cxxclass& _to);
 
     bool delete_header(const cxxclass& _class);
     bool delete_source(const cxxclass& _class);
