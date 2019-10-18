@@ -165,7 +165,26 @@ bool project::move_header(const cxxclass& _from, const cxxclass& _to)
 
     if (std::filesystem::exists(headerPath))
     {
-        std::filesystem::rename(headerPath, directory() / _to.headerProjectPath);
+        const std::filesystem::path& newHeaderPath = directory() / _to.headerProjectPath;
+
+        try
+        {
+            std::filesystem::rename(headerPath, newHeaderPath);
+        }
+        catch(const std::exception&)
+        {
+            return false;
+        }
+
+        if (headerPath.filename() != newHeaderPath.filename())
+        {
+            const std::string& headerDefinitionName = get_header_definition_name(_from);
+            const std::string& newHeaderDefinitionName = get_header_definition_name(_to);
+
+            std::string text = file_read_all_text(newHeaderPath);
+            replace_all(text, headerDefinitionName, newHeaderDefinitionName);
+            file_write_all_text(newHeaderPath, text);
+        }
 
         return true;
     }
@@ -175,11 +194,30 @@ bool project::move_header(const cxxclass& _from, const cxxclass& _to)
 
 bool project::move_source(const cxxclass& _from, const cxxclass& _to)
 {
-    const std::filesystem::path& headerPath = directory() / _from.sourceProjectPath;
+    const std::filesystem::path& sourcePath = directory() / _from.sourceProjectPath;
 
-    if (std::filesystem::exists(headerPath))
+    if (std::filesystem::exists(sourcePath))
     {
-        std::filesystem::rename(headerPath, directory() / _to.sourceProjectPath);
+        const std::filesystem::path& newSourcePath = directory() / _to.headerProjectPath;
+
+        try
+        {
+            std::filesystem::rename(sourcePath, newSourcePath);
+        }
+        catch(const std::exception&)
+        {
+            return false;
+        }
+
+        if (sourcePath.filename() != newSourcePath.filename())
+        {
+            const std::string& headerDefinitionName = get_header_definition_name(_from);
+            const std::string& newHeaderDefinitionName = get_header_definition_name(_to);
+
+            std::string text = file_read_all_text(newSourcePath);
+            replace_all(text, _from.headerRelativePath.string(), _to.headerRelativePath.string());
+            file_write_all_text(newSourcePath, text);
+        }
 
         return true;
     }

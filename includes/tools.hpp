@@ -79,7 +79,7 @@ inline std::string file_read_all_text(const std::filesystem::path& _filePath)
     return text;
 }
 
-inline void file_read_all_text(const std::filesystem::path& _filePath, const std::string& _text)
+inline void file_write_all_text(const std::filesystem::path& _filePath, const std::string& _text)
 {
     std::ofstream file(_filePath);
 

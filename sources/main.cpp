@@ -63,7 +63,7 @@ int main(int _argc, char const* _argv[])
 {
     // TODO :
     // - add/remove header only
-    // - "rename/move" command (rename in header and source)
+    // - "rename/move" command (create/remove folders)
     // - errors/warnings feedback -> cout
     // - handle local and project global path
     // - Doc in the README.md
