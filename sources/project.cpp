@@ -117,7 +117,10 @@ bool project::remove_class(const cxxclass& _class)
 
 bool project::create_header(const cxxclass& _class)
 {
-    std::ofstream header(directory() / _class.headerProjectPath);
+    const std::filesystem::path& headerPath = directory() / _class.headerProjectPath;
+
+    std::filesystem::create_directories(headerPath.parent_path());
+    std::ofstream header(headerPath);
 
     if (header.is_open())
     {
@@ -143,7 +146,10 @@ bool project::create_header(const cxxclass& _class)
 
 bool project::create_source(const cxxclass& _class)
 {
-    std::ofstream source(directory() / _class.sourceProjectPath);
+    const std::filesystem::path& sourcePath = directory() / _class.sourceProjectPath;
+
+    std::filesystem::create_directories(sourcePath.parent_path());
+    std::ofstream source(sourcePath);
 
     if (source.is_open())
     {
@@ -169,22 +175,22 @@ bool project::move_header(const cxxclass& _from, const cxxclass& _to)
 
         try
         {
+            std::filesystem::create_directories(newHeaderPath.parent_path());
             std::filesystem::rename(headerPath, newHeaderPath);
+            clear_empty_directories(headerPath.parent_path());
         }
-        catch(const std::exception&)
+        catch(const std::exception& e)
         {
+            std::cout << e.what() << std::endl;
             return false;
         }
 
-        if (headerPath.filename() != newHeaderPath.filename())
-        {
-            const std::string& headerDefinitionName = get_header_definition_name(_from);
-            const std::string& newHeaderDefinitionName = get_header_definition_name(_to);
+        const std::string& headerDefinitionName = get_header_definition_name(_from);
+        const std::string& newHeaderDefinitionName = get_header_definition_name(_to);
 
-            std::string text = file_read_all_text(newHeaderPath);
-            replace_all(text, headerDefinitionName, newHeaderDefinitionName);
-            file_write_all_text(newHeaderPath, text);
-        }
+        std::string text = file_read_all_text(newHeaderPath);
+        replace_all(text, headerDefinitionName, newHeaderDefinitionName);
+        file_write_all_text(newHeaderPath, text);
 
         return true;
     }
@@ -198,26 +204,23 @@ bool project::move_source(const cxxclass& _from, const cxxclass& _to)
 
     if (std::filesystem::exists(sourcePath))
     {
-        const std::filesystem::path& newSourcePath = directory() / _to.headerProjectPath;
+        const std::filesystem::path& newSourcePath = directory() / _to.sourceProjectPath;
 
         try
         {
+            std::filesystem::create_directories(newSourcePath.parent_path());
             std::filesystem::rename(sourcePath, newSourcePath);
+            clear_empty_directories(sourcePath.parent_path());
         }
-        catch(const std::exception&)
+        catch(const std::exception& e)
         {
+            std::cout << e.what() << std::endl;
             return false;
         }
 
-        if (sourcePath.filename() != newSourcePath.filename())
-        {
-            const std::string& headerDefinitionName = get_header_definition_name(_from);
-            const std::string& newHeaderDefinitionName = get_header_definition_name(_to);
-
-            std::string text = file_read_all_text(newSourcePath);
-            replace_all(text, _from.headerRelativePath.string(), _to.headerRelativePath.string());
-            file_write_all_text(newSourcePath, text);
-        }
+        std::string text = file_read_all_text(newSourcePath);
+        replace_all(text, _from.headerRelativePath.string(), _to.headerRelativePath.string());
+        file_write_all_text(newSourcePath, text);
 
         return true;
     }
@@ -232,6 +235,7 @@ bool project::delete_header(const cxxclass& _class)
     if (std::filesystem::exists(headerPath))
     {
         std::filesystem::remove(headerPath);
+        clear_empty_directories(headerPath.parent_path());
 
         return true;
     }
@@ -246,6 +250,7 @@ bool project::delete_source(const cxxclass& _class)
     if (std::filesystem::exists(sourcePath))
     {
         std::filesystem::remove(sourcePath);
+        clear_empty_directories(sourcePath.parent_path());
 
         return true;
     }
@@ -329,8 +334,20 @@ bool project::parse_cmake_lists()
             }
         }
 
-        // TODO check why weird char at the end
-        endPart.resize(endPart.length() - 1);
+        // pop eof char
+        
+        if (!begined)
+        {
+            startPart.pop_back();
+        }
+        else if (!ended)
+        {
+            cxxmPart.pop_back();
+        }
+        else
+        {
+            endPart.pop_back();
+        }
 
         file.close();
 

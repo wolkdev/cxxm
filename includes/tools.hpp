@@ -73,6 +73,9 @@ inline std::string file_read_all_text(const std::filesystem::path& _filePath)
             text += file.get();
         }
 
+        // pop eof char
+        text.pop_back();
+
         file.close();
     }
 
@@ -97,7 +100,7 @@ inline void replace_all(std::string& _string, const std::string& _from, const st
 
     do
     {
-        pos = _string.find(_from);
+        pos = _string.find(_from, pos);
 
         if (pos != std::string::npos)
         {
@@ -106,6 +109,29 @@ inline void replace_all(std::string& _string, const std::string& _from, const st
         }
 
     } while (pos != std::string::npos && pos < _string.length());
+}
+
+inline void clear_empty_directories(const std::filesystem::path& _path)
+{
+    std::filesystem::path path = _path;
+    std::filesystem::path pathToRemove;
+    std::error_code error;
+
+    while (std::filesystem::is_empty(path, error))
+    {
+        if (error)
+        {
+            return;
+        }
+
+        pathToRemove = path;
+        path = path.parent_path();
+    }
+    
+    if (!pathToRemove.empty())
+    {
+        std::filesystem::remove(pathToRemove);
+    }
 }
 
 #endif // !TOOLS__HPP
