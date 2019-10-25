@@ -39,14 +39,14 @@ class project
     bool rename_class(const cxxclass& _from, const cxxclass& _to);
     bool remove_class(const cxxclass& _class);
 
-    bool create_header(const cxxclass& _class);
-    bool create_source(const cxxclass& _class);
+    void create_header(const cxxclass& _class);
+    void create_source(const cxxclass& _class);
 
-    bool move_header(const cxxclass& _from, const cxxclass& _to);
-    bool move_source(const cxxclass& _from, const cxxclass& _to);
+    void move_header(const cxxclass& _from, const cxxclass& _to);
+    void move_source(const cxxclass& _from, const cxxclass& _to);
 
-    bool delete_header(const cxxclass& _class);
-    bool delete_source(const cxxclass& _class);
+    void delete_header(const cxxclass& _class);
+    void delete_source(const cxxclass& _class);
 
     static project create_new(const std::string& _name);
     static std::filesystem::path find_directory_in_hierarchy();

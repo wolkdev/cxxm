@@ -115,147 +115,55 @@ bool project::remove_class(const cxxclass& _class)
     return false;
 }
 
-bool project::create_header(const cxxclass& _class)
+void project::create_header(const cxxclass& _class)
 {
-    const std::filesystem::path& headerPath = directory() / _class.headerProjectPath;
+    const std::string& headerDefinitionName =
+        get_header_definition_name(_class);
 
-    std::filesystem::create_directories(headerPath.parent_path());
-    std::ofstream header(headerPath);
+    std::string text =
+        "#ifndef " + headerDefinitionName + "\n" +
+        "#define " + headerDefinitionName + "\n\n" +
+        "class " + _class.className + "\n" +
+        "{\n    \n};\n\n" + 
+        "#endif // !" + headerDefinitionName;
 
-    if (header.is_open())
-    {
-        const std::string& headerDefinitionName = get_header_definition_name(_class);
-
-        header << "#ifndef " << headerDefinitionName << "\n";
-        header << "#define " << headerDefinitionName << "\n";
-        header << "\n";
-        header << "class " << _class.className << "\n";
-        header << "{\n";
-        header << "    \n";
-        header << "};\n";
-        header << "\n";
-        header << "#endif // !" << headerDefinitionName << "";
-
-        header.close();
-
-        return true;
-    }
-
-    return false;
+    add_file(directory() / _class.headerProjectPath, text);
 }
 
-bool project::create_source(const cxxclass& _class)
+void project::create_source(const cxxclass& _class)
 {
-    const std::filesystem::path& sourcePath = directory() / _class.sourceProjectPath;
+    std::string text =
+        "\n#include \"" + _class.headerRelativePath.string() + "\"\n\n";
 
-    std::filesystem::create_directories(sourcePath.parent_path());
-    std::ofstream source(sourcePath);
-
-    if (source.is_open())
-    {
-        source << "\n";
-        source << "#include \"" << _class.headerRelativePath.string() << "\"\n";
-        source << "\n";
-
-        source.close();
-
-        return true;
-    }
-
-    return false;
+    add_file(directory() / _class.sourceProjectPath, text);
 }
 
-bool project::move_header(const cxxclass& _from, const cxxclass& _to)
+void project::move_header(const cxxclass& _from, const cxxclass& _to)
 {
-    const std::filesystem::path& headerPath = directory() / _from.headerProjectPath;
-
-    if (std::filesystem::exists(headerPath))
-    {
-        const std::filesystem::path& newHeaderPath = directory() / _to.headerProjectPath;
-
-        try
-        {
-            std::filesystem::create_directories(newHeaderPath.parent_path());
-            std::filesystem::rename(headerPath, newHeaderPath);
-            clear_empty_directories(headerPath.parent_path());
-        }
-        catch(const std::exception& e)
-        {
-            std::cout << e.what() << std::endl;
-            return false;
-        }
-
-        const std::string& headerDefinitionName = get_header_definition_name(_from);
-        const std::string& newHeaderDefinitionName = get_header_definition_name(_to);
-
-        std::string text = file_read_all_text(newHeaderPath);
-        replace_all(text, headerDefinitionName, newHeaderDefinitionName);
-        file_write_all_text(newHeaderPath, text);
-
-        return true;
-    }
-
-    return false;
+    move_file(
+        directory() / _from.headerProjectPath,
+        directory() / _to.headerProjectPath,
+        get_header_definition_name(_from),
+        get_header_definition_name(_to));
 }
 
-bool project::move_source(const cxxclass& _from, const cxxclass& _to)
+void project::move_source(const cxxclass& _from, const cxxclass& _to)
 {
-    const std::filesystem::path& sourcePath = directory() / _from.sourceProjectPath;
-
-    if (std::filesystem::exists(sourcePath))
-    {
-        const std::filesystem::path& newSourcePath = directory() / _to.sourceProjectPath;
-
-        try
-        {
-            std::filesystem::create_directories(newSourcePath.parent_path());
-            std::filesystem::rename(sourcePath, newSourcePath);
-            clear_empty_directories(sourcePath.parent_path());
-        }
-        catch(const std::exception& e)
-        {
-            std::cout << e.what() << std::endl;
-            return false;
-        }
-
-        std::string text = file_read_all_text(newSourcePath);
-        replace_all(text, _from.headerRelativePath.string(), _to.headerRelativePath.string());
-        file_write_all_text(newSourcePath, text);
-
-        return true;
-    }
-
-    return false;
+    move_file(
+        directory() / _from.sourceProjectPath,
+        directory() / _to.sourceProjectPath,
+        _from.headerRelativePath.string(),
+        _to.headerRelativePath.string());
 }
 
-bool project::delete_header(const cxxclass& _class)
+void project::delete_header(const cxxclass& _class)
 {
-    const std::filesystem::path& headerPath = directory() / _class.headerProjectPath;
-
-    if (std::filesystem::exists(headerPath))
-    {
-        std::filesystem::remove(headerPath);
-        clear_empty_directories(headerPath.parent_path());
-
-        return true;
-    }
-
-    return false;
+    remove_file(directory() / _class.headerProjectPath);
 }
 
-bool project::delete_source(const cxxclass& _class)
+void project::delete_source(const cxxclass& _class)
 {
-    const std::filesystem::path& sourcePath = directory() / _class.sourceProjectPath;
-
-    if (std::filesystem::exists(sourcePath))
-    {
-        std::filesystem::remove(sourcePath);
-        clear_empty_directories(sourcePath.parent_path());
-
-        return true;
-    }
-
-    return false;
+    remove_file(directory() / _class.sourceProjectPath);
 }
 
 project project::create_new(const std::string& _name)

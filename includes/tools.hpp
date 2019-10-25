@@ -134,4 +134,47 @@ inline void clear_empty_directories(const std::filesystem::path& _path)
     }
 }
 
+inline void add_file(const std::filesystem::path& _path, const std::string& _text)
+{
+    std::filesystem::create_directories(_path.parent_path());
+    file_write_all_text(_path, _text);
+}
+
+inline void move_file(
+    const std::filesystem::path& _from,
+    const std::filesystem::path& _to,
+    const std::string& _textFrom,
+    const std::string& _textTo)
+{
+    if (std::filesystem::exists(_from))
+    {
+        std::filesystem::create_directories(_to.parent_path());
+        std::filesystem::rename(_from, _to);
+        clear_empty_directories(_from.parent_path());
+
+        std::string text = file_read_all_text(_to);
+        replace_all(text, _textFrom, _textTo);
+        file_write_all_text(_to, text);
+    }
+    else
+    {
+        std::string message = "File to move '" + _from.string() + "' doesn't exists";
+        throw std::exception(message.c_str());
+    }
+}
+
+inline void remove_file(const std::filesystem::path& _path)
+{
+    if (std::filesystem::exists(_path))
+    {
+        std::filesystem::remove(_path);
+        clear_empty_directories(_path.parent_path());
+    }
+    else
+    {
+        std::string message = "File to remove '" + _path.string() + "' doesn't exists";
+        throw std::exception(message.c_str());
+    }
+}
+
 #endif // !TOOLS__HPP
