@@ -28,14 +28,32 @@ class cmd
         bool empty() const;
     };
 
-    public:
     typedef void (*function)(const std::vector<arg>&);
 
+    struct data
+    {
+        std::string string;
+        std::string help;
+        std::vector<std::vector<std::string>> options;
+        function callback = nullptr;
+        int maxArgCount = -1;
+
+        data() { }
+        data(const std::string& _string, function _callback, int _maxArgCount = -1)
+        : string(_string), callback(_callback), maxArgCount(_maxArgCount) { }
+
+        void add_options(const std::vector<std::string>& _options);
+        void add_options(std::vector<std::string>&& _options);
+        void set_help(const std::string& _help);
+
+        void check_args(const std::vector<arg>& _args);
+    };
+
     private:
-    std::unordered_map<std::string, function> functions; 
+    std::unordered_map<std::string, data> cmds;
 
     public:
-    void add(const std::string& _string, function _function);
+    void add(const data& _cmd);
     void execute(const std::string& _command, int _argc, char const* _argv[]);
 
     private:

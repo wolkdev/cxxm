@@ -8,14 +8,25 @@
 void add(const std::vector<cmd::arg>& _args)
 {
     project proj(project::find_directory_in_hierarchy());
-
+    
     if (proj.valid())
     {
         project::cxxclass classToAdd(_args[0].string);
 
+        if (_args[0].have_option("local"))
+        {
+            
+        }
+
         try
         {
             proj.create_header(classToAdd);
+
+            if (_args[0].have_option("header"))
+            {
+                
+            }
+
             proj.create_source(classToAdd);
         }
         catch(const std::exception& e)
@@ -96,6 +107,7 @@ void remove(const std::vector<cmd::arg>& _args)
 int main(int _argc, char const* _argv[])
 {
     // TODO :
+    // - cmd error system
     // - add/remove header only
     // - handle local and project global path
     // - Doc in the README.md
@@ -107,9 +119,21 @@ int main(int _argc, char const* _argv[])
         const char** argv = (argc > 0 ? &_argv[2] : nullptr);
 
         cmd commander;
-        commander.add("add", &add);
-        commander.add("move", &move);
-        commander.add("remove", &remove);
+
+        cmd::data addCMD("add", &add);
+        addCMD.add_options({ "local", "global" });
+        addCMD.add_options({ "header" });
+
+        cmd::data moveCMD("move", &move);
+        moveCMD.add_options({ "local", "global" });
+
+        cmd::data removeCMD("remove", &remove);
+        removeCMD.add_options({ "local", "global" });
+
+        commander.add(addCMD);
+        commander.add(moveCMD);
+        commander.add(removeCMD);
+        
         commander.execute(command, argc, argv);
     }
 

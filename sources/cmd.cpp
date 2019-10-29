@@ -2,6 +2,7 @@
 #include "cmd.hpp"
 
 #include <iostream>
+#include <utility>
 
 bool cmd::arg::option::match(const std::string& _string) const
 {
@@ -68,16 +69,70 @@ bool cmd::arg::empty() const
     return string == "" && options.empty();
 }
 
-void cmd::add(const std::string& _string, function _function)
+void cmd::data::add_options(const std::vector<std::string>& _options)
 {
-    functions[_string] = _function;
+    options.push_back(_options);
+}
+
+void cmd::data::add_options(std::vector<std::string>&& _options)
+{
+    options.push_back(std::move(_options));
+}
+
+void cmd::data::set_help(const std::string& _help)
+{
+    help = _help;
+}
+
+void cmd::data::check_args(const std::vector<arg>& _args)
+{
+    bool match;
+
+    for (size_t i = 0; i < _args.size(); i++)
+    {
+        for (size_t j = 0; j < _args[i].options.size(); j++)
+        {
+            match = false;
+
+            if (help != "" && _args[i].options[j].match("help"))
+            {
+                match = true;
+            }
+
+            for (size_t k = 0; k < options.size(); k++)
+            {
+                for (size_t l = 0; l < options[k].size(); l++)
+                {
+                    if (_args[i].options[j].match(options[k][l]))
+                    {
+                        if (match)
+                        {
+                            return; // TODO return conflict option error
+                        }
+
+                        match = true;
+                    }
+                }
+            }
+
+            if (!match)
+            {
+                return; // TODO return not matching option error
+            }
+        }
+    }
+}
+
+void cmd::add(const data& _cmd)
+{
+    cmds[_cmd.string] = data(_cmd);
 }
 
 void cmd::execute(const std::string& _command, int _argc, char const* _argv[])
 {
-    if (functions[_command] != nullptr)
+    if (cmds.find(_command) != cmds.end())
     {
-        functions[_command](parse_args(_argc, _argv));
+        cmds[_command].callback(parse_args(_argc, _argv));
     }
 }
 
