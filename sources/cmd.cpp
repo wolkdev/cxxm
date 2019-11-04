@@ -20,42 +20,17 @@ bool cmd::arg::option::match(const std::string& _string) const
     }
 }
 
-bool cmd::arg::check_options(const std::vector<std::string>& _options) const
-{
-    std::vector<int> matcheds;
-
-    for (size_t i = 0; i < _options.size(); i++)
-    {
-        if (have_option(_options[i]))
-        {
-            matcheds.push_back(i);
-        }
-    }
-
-    return matcheds.size() == options.size();
-}
-
 bool cmd::arg::have_option(const std::string& _string) const
 {
-    std::vector<int> matcheds;
-
     for (size_t i = 0; i < options.size(); i++)
     {
         if (options[i].match(_string))
         {
-            matcheds.push_back(i);
+            return true;
         }
     }
-    
-    if (matcheds.size() <= 1)
-    {
-        return matcheds.size() == 1;
-    }
-    else
-    {
-        std::cout << "Conflict !" << std::endl;
-        return false;
-    }
+
+    return false;
 }
 
 void cmd::arg::clear()
@@ -84,7 +59,7 @@ void cmd::data::set_help(const std::string& _help)
     help = _help;
 }
 
-void cmd::data::check_args(const std::vector<arg>& _args)
+void cmd::data::check_args(const std::vector<arg>& _args, error& _outError)
 {
     bool match;
 
@@ -107,7 +82,9 @@ void cmd::data::check_args(const std::vector<arg>& _args)
                     {
                         if (match)
                         {
-                            return; // TODO return conflict option error
+                            _outError.code = 1;
+                            _outError.message = "Conflict error !";
+                            return;
                         }
 
                         match = true;
@@ -117,7 +94,9 @@ void cmd::data::check_args(const std::vector<arg>& _args)
 
             if (!match)
             {
-                return; // TODO return not matching option error
+                _outError.code = 1;
+                _outError.message = "No matching options !";
+                return;
             }
         }
     }
@@ -132,8 +111,48 @@ void cmd::execute(const std::string& _command, int _argc, char const* _argv[])
 {
     if (cmds.find(_command) != cmds.end())
     {
-        cmds[_command].callback(parse_args(_argc, _argv));
+        error e;
+        const std::vector<arg>& args = parse_args(_argc, _argv);
+
+        cmds[_command].check_args(args, e);
+
+        if (e)
+        {
+            std::cerr << e.message;
+        }
+        else
+        {
+            cmds[_command].callback(args);
+        }
     }
+}
+
+bool cmd::is_option(std::string _str, int& _index)
+{
+    if (_str.size() > 0)
+    {
+        if (_str[0] == '-')
+        {
+            if (_str.size() > 1)
+            {
+                if (_str[1] == '-')
+                {
+                    if (_str.size() > 2)
+                    {
+                        _index = 2;
+                        return true;
+                    }
+                }
+                else
+                {
+                    _index = 1;
+                    return true;
+                }
+            }
+        }
+    }
+
+    return false;
 }
 
 std::vector<cmd::arg> cmd::parse_args(int _argc, char const* _argv[])
@@ -141,46 +160,23 @@ std::vector<cmd::arg> cmd::parse_args(int _argc, char const* _argv[])
     std::vector<arg> args;
     arg current;
 
+    std::string str;
+    int index;
+
     for (int i = 0; i < _argc; i++)
     {
-        std::string str(_argv[i]);
+        str = _argv[i];
 
-        if (str.size() > 0)
+        if (is_option(str, index))
         {
-            if (str[0] == '-')
-            {
-                if (str.size() > 1)
-                {
-                    if (str[1] == '-')
-                    {
-                        if (str.size() > 2)
-                        {
-                            current.options.push_back(
-                                arg::option(str.substr(2)));
-                        }
-                        else
-                        {
-                            
-                        }
-                    }
-                    else
-                    {
-                        current.options.push_back(
-                            arg::option(str.substr(1)));
-                    }
-                }
-                else
-                {
-                    
-                }
-            }
-            else
-            {
-                current.string = str;
-                args.push_back(current);
+            current.options.push_back(arg::option(str.substr(index)));
+        }
+        else
+        {
+            current.string = str;
+            args.push_back(current);
                 
-                current.clear();
-            }
+            current.clear();
         }
     }
 

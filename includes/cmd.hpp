@@ -21,7 +21,6 @@ class cmd
         std::string string;
         std::vector<option> options;
 
-        bool check_options(const std::vector<std::string>& _options) const;
         bool have_option(const std::string& _string) const;
         
         void clear();
@@ -29,6 +28,14 @@ class cmd
     };
 
     typedef void (*function)(const std::vector<arg>&);
+
+    struct error
+    {
+        int code = 0;
+        std::string message;
+
+        operator bool() { return code != 0; }
+    };
 
     struct data
     {
@@ -46,7 +53,7 @@ class cmd
         void add_options(std::vector<std::string>&& _options);
         void set_help(const std::string& _help);
 
-        void check_args(const std::vector<arg>& _args);
+        void check_args(const std::vector<arg>& _args, error& _outError);
     };
 
     private:
@@ -57,7 +64,8 @@ class cmd
     void execute(const std::string& _command, int _argc, char const* _argv[]);
 
     private:
-    std::vector<arg> parse_args(int _argc, char const* _argv[]);
+    static bool is_option(std::string _str, int& _index);
+    static std::vector<arg> parse_args(int _argc, char const* _argv[]);
 };
 
 #endif // !CMD__HPP
