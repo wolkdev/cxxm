@@ -34,6 +34,7 @@ class project
 
     bool valid() const;
     std::filesystem::path directory() const;
+    std::filesystem::path local_to_project_path(const std::filesystem::path& _path) const;
 
     bool add_class(const cxxclass& _class);
     bool rename_class(const cxxclass& _from, const cxxclass& _to);

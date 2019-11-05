@@ -8,39 +8,40 @@
 void add(const std::vector<cmd::arg>& _args)
 {
     project proj(project::find_directory_in_hierarchy());
-    
+
     if (proj.valid())
     {
-        project::cxxclass classToAdd(_args[0].string);
-
-        if (_args[0].have_option("local"))
-        {
-            
-        }
-
         try
         {
-            proj.create_header(classToAdd);
+            std::filesystem::path path = _args[0].string;
 
-            if (_args[0].have_option("header"))
+            if (_args[0].have_option("local"))
             {
-                
+                path = proj.local_to_project_path(path);
+                std::cout << path << std::endl;
             }
 
-            proj.create_source(classToAdd);
+            project::cxxclass classToAdd(path.string());
+
+            proj.create_header(classToAdd);
+
+            if (!_args[0].have_option("header"))
+            {
+                proj.create_source(classToAdd);   
+            }
+
+            if (proj.add_class(classToAdd))
+            {
+                proj.save();
+            }
+            else
+            {
+                std::cerr << "Cannot add class" << std::endl;
+            }
         }
         catch(const std::exception& e)
         {
             std::cerr << e.what() << std::endl;
-        }
-
-        if (proj.add_class(classToAdd))
-        {
-            proj.save();
-        }
-        else
-        {
-            std::cerr << "Cannot add class" << std::endl;
         }
     }
 }
@@ -107,10 +108,11 @@ void remove(const std::vector<cmd::arg>& _args)
 int main(int _argc, char const* _argv[])
 {
     // TODO :
-    // - cmd error system
-    // - add/remove header only
-    // - handle local and project global path
+    // - polish all command + catch error in cmd class
     // - Doc in the README.md
+
+    std::cout << "I' here bitch !" << std::endl;
+    std::cout << _argc << std::endl;
 
     if (_argc > 1)
     {

@@ -118,7 +118,7 @@ void cmd::execute(const std::string& _command, int _argc, char const* _argv[])
 
         if (e)
         {
-            std::cerr << e.message;
+            std::cerr << e.message << std::endl;
         }
         else
         {

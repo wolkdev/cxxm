@@ -177,4 +177,34 @@ inline void remove_file(const std::filesystem::path& _path)
     }
 }
 
+inline bool path_contains_base(
+    const std::filesystem::path& _path,
+    const std::filesystem::path& _base)
+{
+    std::filesystem::path temp = _path;
+
+    while (temp != _base && temp.has_filename())
+    {
+        temp = temp.parent_path();
+    }
+    
+    return temp == _base;
+}
+
+inline std::filesystem::path get_path_diff(
+    const std::filesystem::path& _path,
+    const std::filesystem::path& _base)
+{
+    std::filesystem::path temp = _path;
+    std::filesystem::path diff;
+
+    while (temp != _base && temp.has_filename())
+    {
+        diff = temp.filename() / diff;
+        temp = temp.parent_path();
+    }
+    
+    return diff;
+}
+
 #endif // !TOOLS__HPP

@@ -54,6 +54,29 @@ std::filesystem::path project::directory() const
     return dirPath;
 }
 
+std::filesystem::path project::local_to_project_path(const std::filesystem::path& _path) const
+{
+    const std::filesystem::path& current = std::filesystem::current_path();
+    const std::filesystem::path& includes = directory() / "includes";
+    const std::filesystem::path& sources = directory() / "sources";
+
+    if (path_contains_base(current, includes))
+    {
+        return get_path_diff(current, includes) / _path;
+    }
+    else if (path_contains_base(current, sources))
+    {
+        return get_path_diff(current, sources) / _path;
+    }
+    else
+    {
+        throw std::exception(
+            "Invalide Local Path : "
+            "You should be in the "
+            "includes or sources folder !");
+    }
+}
+
 bool project::add_class(const cxxclass& _class)
 {
     size_t pos = cxxmPart.find(')');
