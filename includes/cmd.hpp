@@ -7,6 +7,10 @@
 class cmd
 {
     public:
+    struct arg;
+    struct data;
+    typedef void (*function)(const std::vector<arg>&);
+
     struct arg
     {
         struct option
@@ -27,16 +31,6 @@ class cmd
         bool empty() const;
     };
 
-    typedef void (*function)(const std::vector<arg>&);
-
-    struct error
-    {
-        int code = 0;
-        std::string message;
-
-        operator bool() { return code != 0; }
-    };
-
     struct data
     {
         std::string string;
@@ -44,16 +38,17 @@ class cmd
         std::vector<std::vector<std::string>> options;
         function callback = nullptr;
         int maxArgCount = -1;
+        int minArgCount = 0;
 
         data() { }
-        data(const std::string& _string, function _callback, int _maxArgCount = -1)
-        : string(_string), callback(_callback), maxArgCount(_maxArgCount) { }
+        data(const std::string& _string, function _callback, int _minArgCount = 0, int _maxArgCount = -1)
+        : string(_string), callback(_callback), minArgCount(_minArgCount), maxArgCount(_maxArgCount) { }
 
         void add_options(const std::vector<std::string>& _options);
         void add_options(std::vector<std::string>&& _options);
         void set_help(const std::string& _help);
 
-        void check_args(const std::vector<arg>& _args, error& _outError);
+        void check_args(const std::vector<arg>& _args);
     };
 
     private:

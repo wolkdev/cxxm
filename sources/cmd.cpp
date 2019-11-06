@@ -59,9 +59,18 @@ void cmd::data::set_help(const std::string& _help)
     help = _help;
 }
 
-void cmd::data::check_args(const std::vector<arg>& _args, error& _outError)
+void cmd::data::check_args(const std::vector<arg>& _args)
 {
     bool match;
+
+    if (_args.size() < (unsigned)minArgCount)
+    {
+        throw std::exception("Not enough arguments !");
+    }
+    else if (maxArgCount > 0 && _args.size() > (unsigned)maxArgCount)
+    {
+        throw std::exception("Too much arguments !");
+    }
 
     for (size_t i = 0; i < _args.size(); i++)
     {
@@ -82,9 +91,7 @@ void cmd::data::check_args(const std::vector<arg>& _args, error& _outError)
                     {
                         if (match)
                         {
-                            _outError.code = 1;
-                            _outError.message = "Conflict error !";
-                            return;
+                            throw std::exception("Conflict error !");
                         }
 
                         match = true;
@@ -94,9 +101,7 @@ void cmd::data::check_args(const std::vector<arg>& _args, error& _outError)
 
             if (!match)
             {
-                _outError.code = 1;
-                _outError.message = "No matching options !";
-                return;
+                throw std::exception("No matching options !");
             }
         }
     }
@@ -111,18 +116,15 @@ void cmd::execute(const std::string& _command, int _argc, char const* _argv[])
 {
     if (cmds.find(_command) != cmds.end())
     {
-        error e;
-        const std::vector<arg>& args = parse_args(_argc, _argv);
-
-        cmds[_command].check_args(args, e);
-
-        if (e)
+        try
         {
-            std::cerr << e.message << std::endl;
-        }
-        else
-        {
+            const std::vector<arg>& args = parse_args(_argc, _argv);
+            cmds[_command].check_args(args);
             cmds[_command].callback(args);
+        }
+        catch(const std::exception& e)
+        {
+            std::cerr << e.what() << std::endl;
         }
     }
 }
