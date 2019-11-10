@@ -59,9 +59,24 @@ void cmd::data::set_help(const std::string& _help)
     help = _help;
 }
 
+bool cmd::data::should_display_help(const std::vector<arg>& _args)
+{
+    return help != ""
+        && _args.size() == 1
+        && _args[0].string == ""
+        && _args[0].options.size() == 1
+        && _args[0].options[0].match("help");
+}
+
+void cmd::data::display_help()
+{
+    std::cout << std::endl << help << std::endl;
+}
+
 void cmd::data::check_args(const std::vector<arg>& _args)
 {
     bool match;
+    std::string matched;
 
     if (_args.size() < (unsigned)minArgCount)
     {
@@ -81,6 +96,7 @@ void cmd::data::check_args(const std::vector<arg>& _args)
             if (help != "" && _args[i].options[j].match("help"))
             {
                 match = true;
+                matched = "help";
             }
 
             for (size_t k = 0; k < options.size(); k++)
@@ -91,17 +107,28 @@ void cmd::data::check_args(const std::vector<arg>& _args)
                     {
                         if (match)
                         {
-                            throw std::exception("Conflict error !");
+                            std::string message =
+                                "Conflict error : \""
+                                + options[k][l]
+                                + "\" and \""
+                                + matched + "\"";
+
+                            throw std::exception(message.c_str());
                         }
 
                         match = true;
+                        matched = options[k][l];
                     }
                 }
             }
 
             if (!match)
             {
-                throw std::exception("No matching options !");
+                std::string message =
+                    "No matching options for \""
+                    + _args[i].options[j].string + "\"";
+
+                throw std::exception(message.c_str());
             }
         }
     }
@@ -120,7 +147,15 @@ void cmd::execute(const std::string& _command, int _argc, char const* _argv[])
         {
             const std::vector<arg>& args = parse_args(_argc, _argv);
             cmds[_command].check_args(args);
-            cmds[_command].callback(args);
+
+            if (cmds[_command].should_display_help(args))
+            {
+                cmds[_command].display_help();
+            }
+            else
+            {
+                cmds[_command].callback(args);
+            }
         }
         catch(const std::exception& e)
         {

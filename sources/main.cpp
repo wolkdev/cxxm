@@ -4,8 +4,7 @@
 int main(int _argc, char const* _argv[])
 {
     // TODO :
-    // - Enable helps display in cmd
-    // - Doc in the README.md
+    // - command line completion
 
     if (_argc > 1)
     {
@@ -34,6 +33,8 @@ int main(int _argc, char const* _argv[])
         
         commander.execute(command, argc, argv);
     }
+
+    std::cout << std::endl;
 
     return 0;
 }

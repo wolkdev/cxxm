@@ -48,6 +48,9 @@ class cmd
         void add_options(std::vector<std::string>&& _options);
         void set_help(const std::string& _help);
 
+        bool should_display_help(const std::vector<arg>& _args);
+        void display_help();
+
         void check_args(const std::vector<arg>& _args);
     };
 
