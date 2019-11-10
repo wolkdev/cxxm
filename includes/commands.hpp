@@ -11,6 +11,8 @@
 inline void init(const std::vector<cmd::arg>& _args)
 {
     project::create_new(_args[0].string);
+
+    std::cout << "project initialized" << std::endl;
 }
 
 inline void add(const std::vector<cmd::arg>& _args)
@@ -30,12 +32,12 @@ inline void add(const std::vector<cmd::arg>& _args)
 
         if (proj.create_header(classToAdd))
         {
-            std::cout << "Header created : "
+            std::cout << "header created : "
                 << classToAdd.headerProjectPath << std::endl;
         }
         else
         {
-            std::cout << "Header creation failed : "
+            std::cout << "header creation failed : "
                 << classToAdd.headerProjectPath << std::endl;
         }
         
@@ -43,30 +45,31 @@ inline void add(const std::vector<cmd::arg>& _args)
         {
             if (proj.create_source(classToAdd))
             {
-                std::cout << "Source created : "
+                std::cout << "source created : "
                     << classToAdd.sourceProjectPath << std::endl;
+
+                if (proj.add_class(classToAdd))
+                {
+                    proj.save();
+
+                    std::cout << "\"" << classToAdd.className << "\""
+                        << " class added" << std::endl;
+                }
+                else
+                {
+                    std::cout << "cannot add class !" << std::endl;
+                }
             }
             else
             {
-                std::cout << "Source creation failed : "
-                    << classToAdd.sourceProjectPath << std::endl << std::endl;
+                std::cout << "source creation failed : "
+                    << classToAdd.sourceProjectPath << std::endl;
             }
-        }
-
-        if (proj.add_class(classToAdd))
-        {
-            proj.save();
-
-            std::cout << classToAdd.className << " class added" << std::endl;
-        }
-        else
-        {
-            std::cout << "Cannot add class !" << std::endl;
         }
     }
     else
     {
-        std::cout << "Cannot find the CMakeLists.txt !" << std::endl;
+        std::cout << "cannot find the CMakeLists.txt !" << std::endl;
     }
 }
 
@@ -95,26 +98,26 @@ inline void move(const std::vector<cmd::arg>& _args)
 
         if (proj.move_header(classToMove, classMoved))
         {
-            std::cout << "Header moved from : "
+            std::cout << "header moved from : "
                 << classToMove.headerProjectPath << " to : "
                 << classMoved.headerProjectPath << std::endl;
         }
         else
         {
-            std::cout << "Header move failed from : "
+            std::cout << "header move failed from : "
                 << classToMove.headerProjectPath << " to : "
                 << classMoved.headerProjectPath << std::endl;
         }
         
         if (proj.move_source(classToMove, classMoved))
         {
-            std::cout << "Source moved from : "
+            std::cout << "source moved from : "
                 << classToMove.sourceProjectPath << " to : "
                 << classMoved.sourceProjectPath << std::endl;
         }
         else
         {
-            std::cout << "Source move failed from : "
+            std::cout << "source move failed from : "
                 << classToMove.sourceProjectPath << " to : "
                 << classMoved.sourceProjectPath << std::endl;
         }
@@ -123,17 +126,17 @@ inline void move(const std::vector<cmd::arg>& _args)
         {
             proj.save();
 
-            std::cout << classToMove.className << " renamed to "
-                << classMoved.className << std::endl;
+            std::cout << "\"" << classToMove.className << "\"" << " renamed to "
+                << "\"" << classMoved.className << "\"" << std::endl;
         }
         else
         {
-            std::cout << "Cannot rename class !" << std::endl;
+            std::cout << "cannot rename class !" << std::endl;
         }
     }
     else
     {
-        std::cout << "Cannot find the CMakeLists.txt !" << std::endl;
+        std::cout << "cannot find the CMakeLists.txt !" << std::endl;
     }
 }
 
@@ -154,23 +157,23 @@ inline void remove(const std::vector<cmd::arg>& _args)
 
         if (proj.delete_header(classToRemove))
         {
-            std::cout << "Header created : "
+            std::cout << "header removed : "
                 << classToRemove.headerProjectPath << std::endl;
         }
         else
         {
-            std::cout << "Header creation failed : "
+            std::cout << "header removing failed : "
                 << classToRemove.headerProjectPath << std::endl;
         }
         
         if (proj.delete_source(classToRemove))
         {
-            std::cout << "Source created : "
+            std::cout << "source removed : "
                 << classToRemove.sourceProjectPath << std::endl;
         }
         else
         {
-            std::cout << "Source creation failed : "
+            std::cout << "source removing failed : "
                 << classToRemove.sourceProjectPath << std::endl;
         }
 
@@ -178,16 +181,17 @@ inline void remove(const std::vector<cmd::arg>& _args)
         {
             proj.save();
 
-            std::cout << classToRemove.className << " class removed" << std::endl;
+            std::cout << "\"" << classToRemove.className << "\""
+                << " class removed" << std::endl;
         }
         else
         {
-            std::cout << "Cannot remove class !" << std::endl;
+            std::cout << "cannot remove class !" << std::endl;
         }
     }
     else
     {
-        std::cout << "Cannot find the CMakeLists.txt !" << std::endl;
+        std::cout << "cannot find the CMakeLists.txt !" << std::endl;
     }
 }
 

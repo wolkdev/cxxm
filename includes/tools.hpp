@@ -140,7 +140,10 @@ inline void clear_empty_directories(const std::filesystem::path& _path)
 
 inline bool add_file(const std::filesystem::path& _path, const std::string& _text)
 {
-    return std::filesystem::create_directories(_path.parent_path())
+    const std::filesystem::path& dir = _path.parent_path();
+
+    return (std::filesystem::is_directory(dir)
+        || std::filesystem::create_directories(dir))
         && file_write_all_text(_path, _text);
 }
 
@@ -150,8 +153,11 @@ inline bool move_file(
     const std::string& _textFrom,
     const std::string& _textTo)
 {
+    const std::filesystem::path& dir = _to.parent_path();
+
     if (std::filesystem::exists(_from)
-        && std::filesystem::create_directories(_to.parent_path()))
+        && (std::filesystem::is_directory(dir)
+        || std::filesystem::create_directories(dir)))
     {
         try
         {
