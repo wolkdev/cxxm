@@ -82,7 +82,7 @@ inline std::string file_read_all_text(const std::filesystem::path& _filePath)
     return text;
 }
 
-inline void file_write_all_text(const std::filesystem::path& _filePath, const std::string& _text)
+inline bool file_write_all_text(const std::filesystem::path& _filePath, const std::string& _text)
 {
     std::ofstream file(_filePath);
 
@@ -91,7 +91,11 @@ inline void file_write_all_text(const std::filesystem::path& _filePath, const st
         file << _text;
 
         file.close();
+
+        return true;
     }
+
+    return false;
 }
 
 inline void replace_all(std::string& _string, const std::string& _from, const std::string& _to)
@@ -134,47 +138,54 @@ inline void clear_empty_directories(const std::filesystem::path& _path)
     }
 }
 
-inline void add_file(const std::filesystem::path& _path, const std::string& _text)
+inline bool add_file(const std::filesystem::path& _path, const std::string& _text)
 {
-    std::filesystem::create_directories(_path.parent_path());
-    file_write_all_text(_path, _text);
+    return std::filesystem::create_directories(_path.parent_path())
+        && file_write_all_text(_path, _text);
 }
 
-inline void move_file(
+inline bool move_file(
     const std::filesystem::path& _from,
     const std::filesystem::path& _to,
     const std::string& _textFrom,
     const std::string& _textTo)
 {
-    if (std::filesystem::exists(_from))
+    if (std::filesystem::exists(_from)
+        && std::filesystem::create_directories(_to.parent_path()))
     {
-        std::filesystem::create_directories(_to.parent_path());
-        std::filesystem::rename(_from, _to);
+        try
+        {
+            std::filesystem::rename(_from, _to);
+        }
+        catch(const std::exception& e)
+        {
+            std::cerr << e.what() << std::endl;
+
+            return false;
+        }
+        
         clear_empty_directories(_from.parent_path());
 
         std::string text = file_read_all_text(_to);
         replace_all(text, _textFrom, _textTo);
         file_write_all_text(_to, text);
+
+        return true;
     }
-    else
-    {
-        std::string message = "File to move '" + _from.string() + "' doesn't exists";
-        throw std::exception(message.c_str());
-    }
+
+    return false;
 }
 
-inline void remove_file(const std::filesystem::path& _path)
+inline bool remove_file(const std::filesystem::path& _path)
 {
-    if (std::filesystem::exists(_path))
+    if (std::filesystem::exists(_path) && std::filesystem::remove(_path))
     {
-        std::filesystem::remove(_path);
         clear_empty_directories(_path.parent_path());
+
+        return true;
     }
-    else
-    {
-        std::string message = "File to remove '" + _path.string() + "' doesn't exists";
-        throw std::exception(message.c_str());
-    }
+
+    return false;
 }
 
 inline bool path_contains_base(

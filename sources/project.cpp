@@ -138,7 +138,7 @@ bool project::remove_class(const cxxclass& _class)
     return false;
 }
 
-void project::create_header(const cxxclass& _class)
+bool project::create_header(const cxxclass& _class)
 {
     const std::string& headerDefinitionName =
         get_header_definition_name(_class);
@@ -150,43 +150,43 @@ void project::create_header(const cxxclass& _class)
         "{\n    \n};\n\n" + 
         "#endif // !" + headerDefinitionName;
 
-    add_file(directory() / _class.headerProjectPath, text);
+    return add_file(directory() / _class.headerProjectPath, text);
 }
 
-void project::create_source(const cxxclass& _class)
+bool project::create_source(const cxxclass& _class)
 {
     std::string text =
         "\n#include \"" + _class.headerRelativePath.string() + "\"\n\n";
 
-    add_file(directory() / _class.sourceProjectPath, text);
+    return add_file(directory() / _class.sourceProjectPath, text);
 }
 
-void project::move_header(const cxxclass& _from, const cxxclass& _to)
+bool project::move_header(const cxxclass& _from, const cxxclass& _to)
 {
-    move_file(
+    return move_file(
         directory() / _from.headerProjectPath,
         directory() / _to.headerProjectPath,
         get_header_definition_name(_from),
         get_header_definition_name(_to));
 }
 
-void project::move_source(const cxxclass& _from, const cxxclass& _to)
+bool project::move_source(const cxxclass& _from, const cxxclass& _to)
 {
-    move_file(
+    return move_file(
         directory() / _from.sourceProjectPath,
         directory() / _to.sourceProjectPath,
         _from.headerRelativePath.string(),
         _to.headerRelativePath.string());
 }
 
-void project::delete_header(const cxxclass& _class)
+bool project::delete_header(const cxxclass& _class)
 {
-    remove_file(directory() / _class.headerProjectPath);
+    return remove_file(directory() / _class.headerProjectPath);
 }
 
-void project::delete_source(const cxxclass& _class)
+bool project::delete_source(const cxxclass& _class)
 {
-    remove_file(directory() / _class.sourceProjectPath);
+    return remove_file(directory() / _class.sourceProjectPath);
 }
 
 project project::create_new(const std::string& _name)

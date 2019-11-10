@@ -4,12 +4,8 @@
 int main(int _argc, char const* _argv[])
 {
     // TODO :
-    // - Add more commands feedback
     // - Enable helps display in cmd
     // - Doc in the README.md
-
-    std::cout << "I' here bitch !" << std::endl;
-    std::cout << _argc << std::endl;
 
     if (_argc > 1)
     {
