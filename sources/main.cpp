@@ -18,7 +18,7 @@ int main(int _argc, char const* _argv[])
 
         cmd::data addCMD("add", &add, 1, 1);
         addCMD.add_options({ "local", "global" });
-        addCMD.add_options({ "header" });
+        addCMD.add_options({ "header-only" });
 
         cmd::data moveCMD("move", &move, 2, 2);
         moveCMD.add_options({ "local", "global" });

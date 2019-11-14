@@ -41,7 +41,7 @@ inline void add(const std::vector<cmd::arg>& _args)
                 << classToAdd.headerProjectPath << std::endl;
         }
         
-        if (!_args[0].have_option("header"))
+        if (!_args[0].have_option("header-only"))
         {
             if (proj.create_source(classToAdd))
             {
