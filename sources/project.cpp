@@ -341,7 +341,7 @@ void project::create_cmake_lists_file(
         file << "set(CXXM_SOURCES\n";
         file << "#CXXM_BEGIN\n";
         file << "sources/main.cpp)\n";
-        file << "#CXXM_BEGIN\n";
+        file << "#CXXM_END\n";
         file << "\n";
         file << "include_directories(includes)\n";
         file << "add_executable(" << _projectName << " ${CXXM_SOURCES})";
