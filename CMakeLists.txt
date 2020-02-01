@@ -8,11 +8,11 @@ project(cxxm)
 set(CMAKE_CXX_STANDARD 17)
 
 include_directories(includes)
+include_directories(externs)
 
 set(CXXM_SOURCES
 #CXXM_BEGIN
-sources/project.cpp
-sources/cmd.cpp)
+sources/project.cpp)
 #CXXM_END
 
 

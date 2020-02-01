@@ -1,21 +1,22 @@
 #ifndef COMMANDS__HPP
 #define COMMANDS__HPP
 
+#include <cmd/cmd.hpp>
+
 #include "project.hpp"
-#include "cmd.hpp"
 
 #include <filesystem>
 #include <iostream>
 #include <vector>
 
-inline void init(const std::vector<cmd::arg>& _args)
+COMMAND(init, 1, 1, { { } }, "")
 {
     project::create_new(_args[0].string);
 
     std::cout << "project initialized" << std::endl;
 }
 
-inline void add(const std::vector<cmd::arg>& _args)
+COMMAND(add, 1, 1, cmd::option_container({ { "local", "global" }, { "header-only" } }), "")
 {
     project proj(project::find_directory_in_hierarchy());
 
@@ -73,7 +74,7 @@ inline void add(const std::vector<cmd::arg>& _args)
     }
 }
 
-inline void move(const std::vector<cmd::arg>& _args)
+COMMAND(move, 2, 2, cmd::option_container({ { "local", "global" } }), "")
 {
     project proj(project::find_directory_in_hierarchy());
 
@@ -140,7 +141,7 @@ inline void move(const std::vector<cmd::arg>& _args)
     }
 }
 
-inline void remove(const std::vector<cmd::arg>& _args)
+COMMAND(remove, 1, 1, cmd::option_container({ { "local", "global" } }), "")
 {
     project proj(project::find_directory_in_hierarchy());
 

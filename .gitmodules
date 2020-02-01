@@ -1,0 +1,3 @@
+[submodule "externs/cmd"]
+	path = externs/cmd
+	url = https://github.com/wolkdev/cmd.git

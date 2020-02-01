@@ -14,22 +14,10 @@ int main(int _argc, char const* _argv[])
 
         cmd commander;
 
-        cmd::data initCMD("init", &init, 1, 1);
-
-        cmd::data addCMD("add", &add, 1, 1);
-        addCMD.add_options({ "local", "global" });
-        addCMD.add_options({ "header-only" });
-
-        cmd::data moveCMD("move", &move, 2, 2);
-        moveCMD.add_options({ "local", "global" });
-
-        cmd::data removeCMD("remove", &remove, 1, 1);
-        removeCMD.add_options({ "local", "global" });
-
-        commander.add(initCMD);
-        commander.add(addCMD);
-        commander.add(moveCMD);
-        commander.add(removeCMD);
+        commander.add(init_cmd);
+        commander.add(add_cmd);
+        commander.add(move_cmd);
+        commander.add(remove_cmd);
         
         commander.execute(command, argc, argv);
     }
