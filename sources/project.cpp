@@ -189,15 +189,30 @@ bool project::delete_source(const cxxclass& _class)
     return remove_file(directory() / _class.sourceProjectPath);
 }
 
-project project::create_new(const std::string& _name)
+project project::create_new(const std::string& _name, bool _withTests)
 {
+    std::filesystem::path currentPath = std::filesystem::current_path();
+
     std::filesystem::create_directory("includes");
     std::filesystem::create_directory("sources");
 
-    std::filesystem::path currentPath = std::filesystem::current_path();
+    if (_withTests)
+    {
+        std::filesystem::create_directory("tests");
+        std::filesystem::create_directory("tests/includes");
+        std::filesystem::create_directory("tests/sources");
+
+        create_tests_cmake_lists_file(currentPath / "tests", _name);
+        create_main_source_file(currentPath / "tests" / "sources");
+
+        create_cmake_lists_file_with_tests(currentPath, _name);
+    }
+    else
+    {
+        create_cmake_lists_file(currentPath, _name);
+    }
 
     create_main_source_file(currentPath / "sources");
-    create_cmake_lists_file(currentPath, _name);
 
     return project(currentPath);
 }
@@ -336,15 +351,66 @@ void project::create_cmake_lists_file(
         file << "\n";
         file << "project(" << _projectName << ")\n";
         file << "\n";
-        file << "set(CMAKE_CXX_STANDARD 11)\n";
+        file << "include_directories(includes)\n";
         file << "\n";
         file << "set(CXXM_SOURCES\n";
         file << "#CXXM_BEGIN\n";
         file << "sources/main.cpp)\n";
         file << "#CXXM_END\n";
         file << "\n";
-        file << "include_directories(includes)\n";
         file << "add_executable(" << _projectName << " ${CXXM_SOURCES})";
+
+        file.close();
+    }
+}
+
+void project::create_cmake_lists_file_with_tests(
+    const std::filesystem::path& _path, const std::string& _projectName)
+{
+    std::ofstream file(_path / "CMakeLists.txt");
+
+    if (file.is_open())
+    {
+        file << "cmake_minimum_required(VERSION 3.1)\n";
+        file << "\n";
+        file << "project(" << _projectName << ")\n";
+        file << "project(lib" << _projectName << ")\n";
+        file << "\n";
+        file << "include_directories(includes)\n";
+        file << "\n";
+        file << "add_subdirectory(tests)\n";
+        file << "\n";
+        file << "set(CXXM_SOURCES\n";
+        file << "#CXXM_BEGIN\n";
+        file << ")\n";
+        file << "#CXXM_END\n";
+        file << "\n";
+        file << "add_library(lib" << _projectName << " ${CXXM_SOURCES})\n";
+        file << "add_executable(" << _projectName << " sources/main.cpp)\n";
+        file << "target_link_libraries(" << _projectName << " lib" << _projectName << ")\n";
+
+        file.close();
+    }
+}
+
+void project::create_tests_cmake_lists_file(
+    const std::filesystem::path& _path, const std::string& _projectName)
+{
+    std::ofstream file(_path / "CMakeLists.txt");
+
+    if (file.is_open())
+    {
+        file << "project(TESTS)\n";
+        file << "\n";
+        file << "include_directories(includes)\n";
+        file << "\n";
+        file << "set(CXXM_TESTS_SOURCES\n";
+        file << "#CXXM_BEGIN\n";
+        file << "sources/main.cpp)\n";
+        file << "#CXXM_END\n";
+        file << "\n";
+        file << "add_executable(TESTS ${CXXM_TESTS_SOURCES})";
+        file << "target_link_libraries(TESTS lib" << _projectName << ")";
 
         file.close();
     }

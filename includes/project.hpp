@@ -49,7 +49,7 @@ class project
     bool delete_header(const cxxclass& _class);
     bool delete_source(const cxxclass& _class);
 
-    static project create_new(const std::string& _name);
+    static project create_new(const std::string& _name, bool _withTests);
     static std::filesystem::path find_directory_in_hierarchy();
 
     private:
@@ -58,6 +58,14 @@ class project
     std::string get_header_definition_name(const cxxclass& _class);
 
     static void create_cmake_lists_file(
+        const std::filesystem::path& _path,
+        const std::string& _projectName);
+
+    static void create_cmake_lists_file_with_tests(
+        const std::filesystem::path& _path,
+        const std::string& _projectName);
+
+    static void create_tests_cmake_lists_file(
         const std::filesystem::path& _path,
         const std::string& _projectName);
     

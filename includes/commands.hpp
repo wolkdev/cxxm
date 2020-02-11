@@ -9,9 +9,9 @@
 #include <iostream>
 #include <vector>
 
-COMMAND(init, 1, 1, { { } }, "")
+COMMAND(init, 1, 1, cmd::option_container({ { "tests" } }), "")
 {
-    project::create_new(_args[0].string);
+    project::create_new(_args[0].string, _args[0].have_option("tests"));
 
     std::cout << "project initialized" << std::endl;
 }
