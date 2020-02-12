@@ -5,6 +5,9 @@ int main(int _argc, char const* _argv[])
 {
     // TODO :
     // - command line completion
+    // - template file system
+    // - use ctest for tests in cmakelists
+    // - refactoring
 
     if (_argc > 1)
     {

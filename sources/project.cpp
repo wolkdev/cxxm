@@ -1,7 +1,8 @@
 
 #include "project.hpp"
 
-#include "tools.hpp"
+#include "tools/file_tools.hpp"
+#include "tools/parsing_tools.hpp"
 
 #include <fstream>
 
@@ -150,7 +151,7 @@ bool project::create_header(const cxxclass& _class)
         "{\n    \n};\n\n" + 
         "#endif // !" + headerDefinitionName;
 
-    return add_file(directory() / _class.headerProjectPath, text);
+    return create_file(directory() / _class.headerProjectPath, text);
 }
 
 bool project::create_source(const cxxclass& _class)
@@ -158,7 +159,7 @@ bool project::create_source(const cxxclass& _class)
     std::string text =
         "\n#include \"" + _class.headerRelativePath.string() + "\"\n\n";
 
-    return add_file(directory() / _class.sourceProjectPath, text);
+    return create_file(directory() / _class.sourceProjectPath, text);
 }
 
 bool project::move_header(const cxxclass& _from, const cxxclass& _to)
