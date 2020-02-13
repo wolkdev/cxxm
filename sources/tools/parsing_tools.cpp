@@ -1,7 +1,6 @@
 
 #include "tools/parsing_tools.hpp"
 
-
 std::string peek_word(std::istream& _istream)
 {
     std::streampos startPos = _istream.tellg();
@@ -27,7 +26,7 @@ void skip_word(std::istream& _istream)
     }
 }
 
-void replace_all(
+std::string& replace_all(
     std::string& _string,
     const std::string& _from,
     const std::string& _to)
@@ -45,4 +44,43 @@ void replace_all(
         }
 
     } while (pos != std::string::npos && pos < _string.length());
+
+    return _string;
+}
+
+std::string replace_all(
+    const std::string& _string,
+    const std::vector<variable>& _variables)
+{
+    std::string string = _string;
+    size_t pos = 0;
+    int index = 0;
+
+    do
+    {
+        pos = std::string::npos;
+
+        for (size_t i = 0; i < _variables.size(); i++)
+        {
+            size_t currentPos = string.find(_variables[i].name, pos);
+
+            if (currentPos != std::string::npos
+                && (currentPos < pos || pos == std::string::npos))
+            {
+                pos = currentPos;
+                index = i;
+            }
+        }
+
+        if (pos != std::string::npos)
+        {
+            const variable& v = _variables[index];
+            
+            string.replace(pos, v.name.length(), v.value);
+            pos += v.value.length();
+        }
+
+    } while (pos != std::string::npos && pos < string.length());
+
+    return _string;
 }

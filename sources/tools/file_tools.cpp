@@ -4,7 +4,7 @@
 #include "tools/parsing_tools.hpp"
 
 #include <iostream>
-
+#include <fstream>
 
 std::fs::path to_unix_path(const std::fs::path& _path)
 {
@@ -60,6 +60,25 @@ std::fs::path get_path_diff(const std::fs::path& _path, const std::fs::path& _ba
     }
     
     return diff;
+}
+
+bool find_file_in_hierarchy(const std::string& _fileName, std::fs::path& _path)
+{
+    std::fs::path path = std::fs::current_path() / _fileName;
+
+    do
+    {
+        path = path.parent_path();
+
+        if (std::fs::exists(path / _fileName))
+        {
+            _path = path / _fileName;
+            return true;
+        }
+
+    } while (path.has_filename());
+
+    return false;
 }
 
 std::string file_read_all_text(const std::fs::path& _filePath)
