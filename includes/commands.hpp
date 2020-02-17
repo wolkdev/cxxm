@@ -3,136 +3,87 @@
 
 #include <cmd/cmd.hpp>
 
+#include "defaults.hpp"
 #include "project.hpp"
+
+#include "tools/file_tools.hpp"
+#include "tools/parsing_tools.hpp"
 
 #include <filesystem>
 #include <iostream>
 #include <vector>
 
-COMMAND(init, 1, 1, cmd::option_container({ { "tests" } }), "")
+COMMAND
+(
+    init, 1, 1,
+    cmd::option_container
+    ({
+        { "tests" }
+    }),
+    ""
+)
 {
-    project::create_new(_args[0].string, _args[0].have_option("tests"));
+    std::vector<variable> variables = { { "${NAME}", _args[0].string } };
+
+    std::fs::create_directory("includes");
+    std::fs::create_directory("sources");
+
+    if (_args[0].have_option("tests"))
+    {
+        std::fs::create_directory("tests");
+        std::fs::create_directory("tests/includes");
+        std::fs::create_directory("tests/sources");
+
+        create_file("tests/sources/main.cpp", MAIN_DEFAULT_FILE);
+
+        create_file("tests/CMakeLists.txt", replace_all(
+            TESTS_CMAKE_LISTS_DEFAULT_FILE, variables));
+
+        create_file("CMakeLists.txt", replace_all(
+            CMAKE_LISTS_WITH_TESTS_DEFAULT_FILE, variables));
+    }
+    else
+    {
+        create_file("CMakeLists.txt", replace_all(
+            CMAKE_LISTS_DEFAULT_FILE, variables));
+    }
+
+    create_file("sources/main.cpp", MAIN_DEFAULT_FILE);
 
     std::cout << "project initialized" << std::endl;
 }
 
-COMMAND(add, 1, 1, cmd::option_container({ { "local", "global" }, { "header-only" } }), "")
+COMMAND
+(
+    add, 1, 1,
+    cmd::option_container
+    ({
+        { "local", "global" },
+        { "header-only" }
+    }),
+    ""
+)
 {
-    project proj(project::find_directory_in_hierarchy());
+    std::fs::path cmakeListsPath;
 
-    if (proj.valid())
+    if (find_file_in_hierarchy("CMakeLists.txt", cmakeListsPath))
     {
-        std::filesystem::path path = _args[0].string;
+        project proj(cmakeListsPath);
 
-        if (_args[0].have_option("local"))
+        const std::fs::path& path = _args[0].have_option("local") ?
+            proj.local_to_project_path(_args[0].string) : _args[0].string;
+
+        cxxclass classToAdd(proj, path.string());
+
+        if (_args[0].have_option("header-only"))
         {
-            path = proj.local_to_project_path(path);
+            classToAdd.create_header();
         }
-
-        project::cxxclass classToAdd(path.string());
-
-        if (proj.create_header(classToAdd))
-        {
-            std::cout << "header created : "
-                << classToAdd.headerProjectPath << std::endl;
-        }
-        else
-        {
-            std::cout << "header creation failed : "
-                << classToAdd.headerProjectPath << std::endl;
-        }
-        
-        if (!_args[0].have_option("header-only"))
-        {
-            if (proj.create_source(classToAdd))
-            {
-                std::cout << "source created : "
-                    << classToAdd.sourceProjectPath << std::endl;
-
-                if (proj.add_class(classToAdd))
-                {
-                    proj.save();
-
-                    std::cout << "\"" << classToAdd.className << "\""
-                        << " class added" << std::endl;
-                }
-                else
-                {
-                    std::cout << "cannot add class !" << std::endl;
-                }
-            }
-            else
-            {
-                std::cout << "source creation failed : "
-                    << classToAdd.sourceProjectPath << std::endl;
-            }
-        }
-    }
-    else
-    {
-        std::cout << "cannot find the CMakeLists.txt !" << std::endl;
-    }
-}
-
-COMMAND(move, 2, 2, cmd::option_container({ { "local", "global" } }), "")
-{
-    project proj(project::find_directory_in_hierarchy());
-
-    if (proj.valid())
-    {
-        std::filesystem::path pathToMoved = _args[0].string;
-
-        if (_args[0].have_option("local"))
-        {
-            pathToMoved = proj.local_to_project_path(pathToMoved);
-        }
-
-        std::filesystem::path pathMoved = _args[1].string;
-
-        if (_args[1].have_option("local"))
-        {
-            pathMoved = proj.local_to_project_path(pathMoved);
-        }
-
-        project::cxxclass classToMove(pathToMoved.string());
-        project::cxxclass classMoved(pathMoved.string());
-
-        if (proj.move_header(classToMove, classMoved))
-        {
-            std::cout << "header moved from : "
-                << classToMove.headerProjectPath << " to : "
-                << classMoved.headerProjectPath << std::endl;
-        }
-        else
-        {
-            std::cout << "header move failed from : "
-                << classToMove.headerProjectPath << " to : "
-                << classMoved.headerProjectPath << std::endl;
-        }
-        
-        if (proj.move_source(classToMove, classMoved))
-        {
-            std::cout << "source moved from : "
-                << classToMove.sourceProjectPath << " to : "
-                << classMoved.sourceProjectPath << std::endl;
-        }
-        else
-        {
-            std::cout << "source move failed from : "
-                << classToMove.sourceProjectPath << " to : "
-                << classMoved.sourceProjectPath << std::endl;
-        }
-
-        if (proj.rename_class(classToMove, classMoved))
+        else if (classToAdd.create_header()
+            && classToAdd.create_source()
+            && proj.add_class(classToAdd))
         {
             proj.save();
-
-            std::cout << "\"" << classToMove.className << "\"" << " renamed to "
-                << "\"" << classMoved.className << "\"" << std::endl;
-        }
-        else
-        {
-            std::cout << "cannot rename class !" << std::endl;
         }
     }
     else
@@ -141,53 +92,68 @@ COMMAND(move, 2, 2, cmd::option_container({ { "local", "global" } }), "")
     }
 }
 
-COMMAND(remove, 1, 1, cmd::option_container({ { "local", "global" } }), "")
+COMMAND
+(
+    remove, 1, 1,
+    cmd::option_container
+    ({ { "local", "global" } }),
+    ""
+)
 {
-    project proj(project::find_directory_in_hierarchy());
+    std::fs::path cmakeListsPath;
 
-    if (proj.valid())
+    if (find_file_in_hierarchy("CMakeLists.txt", cmakeListsPath))
     {
-        std::filesystem::path path = _args[0].string;
+        project proj(cmakeListsPath);
 
-        if (_args[0].have_option("local"))
-        {
-            path = proj.local_to_project_path(path);
-        }
+        const std::fs::path& path = _args[0].have_option("local") ?
+            proj.local_to_project_path(_args[0].string) : _args[0].string;
 
-        project::cxxclass classToRemove(path.string());
+        cxxclass classToRemove(proj, path.string());
 
-        if (proj.delete_header(classToRemove))
-        {
-            std::cout << "header removed : "
-                << classToRemove.headerProjectPath << std::endl;
-        }
-        else
-        {
-            std::cout << "header removing failed : "
-                << classToRemove.headerProjectPath << std::endl;
-        }
-        
-        if (proj.delete_source(classToRemove))
-        {
-            std::cout << "source removed : "
-                << classToRemove.sourceProjectPath << std::endl;
-        }
-        else
-        {
-            std::cout << "source removing failed : "
-                << classToRemove.sourceProjectPath << std::endl;
-        }
+        classToRemove.remove_header();
+        classToRemove.remove_source();
 
         if (proj.remove_class(classToRemove))
         {
             proj.save();
-
-            std::cout << "\"" << classToRemove.className << "\""
-                << " class removed" << std::endl;
         }
-        else
+    }
+    else
+    {
+        std::cout << "cannot find the CMakeLists.txt !" << std::endl;
+    }
+}
+
+COMMAND
+(
+    move, 2, 2,
+    cmd::option_container
+    ({
+        { "local", "global" }
+    }),
+    ""
+)
+{
+    std::fs::path cmakeListsPath;
+
+    if (find_file_in_hierarchy("CMakeLists.txt", cmakeListsPath))
+    {
+        project proj(cmakeListsPath);
+
+        const std::fs::path& path1 = _args[0].have_option("local") ?
+            proj.local_to_project_path(_args[0].string) : _args[0].string;
+        const std::fs::path& path2 = _args[1].have_option("local") ?
+            proj.local_to_project_path(_args[1].string) : _args[1].string;
+
+        cxxclass classToMove(proj, path1.string());
+        cxxclass classMoved(proj, path2.string());
+
+        if (classToMove.move_header(classMoved)
+            && classToMove.move_source(classMoved)
+            && proj.rename_class(classToMove, classMoved))
         {
-            std::cout << "cannot remove class !" << std::endl;
+            proj.save();
         }
     }
     else

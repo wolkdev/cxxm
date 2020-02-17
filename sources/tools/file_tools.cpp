@@ -162,11 +162,7 @@ bool remove_file(const std::fs::path& _path)
     return false;
 }
 
-bool move_file(
-    const std::fs::path& _from,
-    const std::fs::path& _to,
-    const std::string& _textFrom,
-    const std::string& _textTo)
+bool move_file(const std::fs::path& _from, const std::fs::path& _to)
 {
     const std::fs::path& dir = _to.parent_path();
 
@@ -186,10 +182,6 @@ bool move_file(
         }
         
         clear_empty_directories(_from.parent_path());
-
-        std::string text = file_read_all_text(_to);
-        replace_all(text, _textFrom, _textTo);
-        file_write_all_text(_to, text);
 
         return true;
     }

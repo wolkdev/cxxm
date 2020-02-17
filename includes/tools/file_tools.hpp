@@ -21,10 +21,6 @@ void clear_empty_directories(const std::fs::path& _path);
 
 bool create_file(const std::fs::path& _path, const std::string& _text);
 bool remove_file(const std::fs::path& _path);
-bool move_file(
-    const std::fs::path& _from,
-    const std::fs::path& _to,
-    const std::string& _textFrom,
-    const std::string& _textTo);
+bool move_file(const std::fs::path& _from, const std::fs::path& _to);
 
 #endif // !TOOLS__FILE_TOOLS__HPP

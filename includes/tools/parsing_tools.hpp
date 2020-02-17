@@ -9,12 +9,15 @@ struct variable
 {
     std::string name;
     std::string value;
+
+    variable(const std::string& _name, const std::string& _value) :
+        name(_name), value(_value) { }
 };
 
 std::string peek_word(std::istream& _istream);
 void skip_word(std::istream& _istream);
 
-std::string& replace_all(
+void replace_all(
     std::string& _string,
     const std::string& _from,
     const std::string& _to);

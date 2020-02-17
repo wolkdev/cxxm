@@ -4,10 +4,10 @@
 
 #include "project.hpp"
 
+#include "tools/file_tools.hpp"
+
 TEST_CASE("Project Search", "[project]")
 {
-    std::filesystem::path path = project::find_directory_in_hierarchy();
-    project p(path);
-
-    REQUIRE(p.valid());
+    std::fs::path path;
+    REQUIRE(find_file_in_hierarchy("CMakeLists.txt", path));
 }

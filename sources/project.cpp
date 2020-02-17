@@ -1,27 +1,13 @@
 
 #include "project.hpp"
 
-#include "tools/file_tools.hpp"
-#include "tools/parsing_tools.hpp"
-
 #include <fstream>
 
-project::cxxclass::cxxclass(const std::string& _name)
+project::project(const std::fs::path& _cmakeListsPath)
 {
-    className = std::filesystem::path(_name).filename().string();
-
-    headerRelativePath = _name + ".hpp";
-    sourceRelativePath = _name + ".cpp";
-
-    headerProjectPath = "includes" / headerRelativePath;
-    sourceProjectPath = "sources" / sourceRelativePath;
-}
-
-project::project(const std::filesystem::path& _directory)
-{
-    dirPath = _directory;
-    cmakeListsPath = directory() / "CMakeLists.txt";
-    isValid = std::filesystem::exists(cmakeListsPath);
+    cmakeListsPath = _cmakeListsPath;
+    dirPath = _cmakeListsPath.parent_path();
+    isValid = std::fs::exists(cmakeListsPath);
 
     if (valid())
     {
@@ -50,16 +36,16 @@ bool project::valid() const
     return isValid;
 }
 
-std::filesystem::path project::directory() const
+std::fs::path project::directory() const
 {
     return dirPath;
 }
 
-std::filesystem::path project::local_to_project_path(const std::filesystem::path& _path) const
+std::fs::path project::local_to_project_path(const std::fs::path& _path) const
 {
-    const std::filesystem::path& current = std::filesystem::current_path();
-    const std::filesystem::path& includes = directory() / "includes";
-    const std::filesystem::path& sources = directory() / "sources";
+    const std::fs::path& current = std::fs::current_path();
+    const std::fs::path& includes = directory() / "includes";
+    const std::fs::path& sources = directory() / "sources";
 
     if (path_contains_base(current, includes))
     {
@@ -86,26 +72,15 @@ bool project::add_class(const cxxclass& _class)
     {
         cxxmPart.insert(pos, "\n" + to_unix_path(_class.sourceProjectPath).string());
 
+        std::cout << "\"" << _class.className << "\"" << " class added" << std::endl;
+
         return true;
     }
-
-    return false;
-}
-
-bool project::rename_class(const cxxclass& _from, const cxxclass& _to)
-{
-    const std::string& sourceFrom = to_unix_path(_from.sourceProjectPath).string();
-    const std::string& sourceTo = to_unix_path(_to.sourceProjectPath).string();
-    size_t pos = cxxmPart.find(sourceFrom);
-
-    if (pos != std::string::npos)
+    else
     {
-        cxxmPart.replace(pos, sourceFrom.length(), sourceTo);
-
-        return true;
+        std::cout << "cannot add class !" << std::endl;
+        return false;
     }
-
-    return false;
 }
 
 bool project::remove_class(const cxxclass& _class)
@@ -133,107 +108,37 @@ bool project::remove_class(const cxxclass& _class)
             cxxmPart.replace(pos, lenght + 1, "");
         }
 
+        std::cout << "\"" << _class.className << "\"" << " class removed" << std::endl;
+
         return true;
-    }
-
-    return false;
-}
-
-bool project::create_header(const cxxclass& _class)
-{
-    const std::string& headerDefinitionName =
-        get_header_definition_name(_class);
-
-    std::string text =
-        "#ifndef " + headerDefinitionName + "\n" +
-        "#define " + headerDefinitionName + "\n\n" +
-        "class " + _class.className + "\n" +
-        "{\n    \n};\n\n" + 
-        "#endif // !" + headerDefinitionName;
-
-    return create_file(directory() / _class.headerProjectPath, text);
-}
-
-bool project::create_source(const cxxclass& _class)
-{
-    std::string text =
-        "\n#include \"" + _class.headerRelativePath.string() + "\"\n\n";
-
-    return create_file(directory() / _class.sourceProjectPath, text);
-}
-
-bool project::move_header(const cxxclass& _from, const cxxclass& _to)
-{
-    return move_file(
-        directory() / _from.headerProjectPath,
-        directory() / _to.headerProjectPath,
-        get_header_definition_name(_from),
-        get_header_definition_name(_to));
-}
-
-bool project::move_source(const cxxclass& _from, const cxxclass& _to)
-{
-    return move_file(
-        directory() / _from.sourceProjectPath,
-        directory() / _to.sourceProjectPath,
-        _from.headerRelativePath.string(),
-        _to.headerRelativePath.string());
-}
-
-bool project::delete_header(const cxxclass& _class)
-{
-    return remove_file(directory() / _class.headerProjectPath);
-}
-
-bool project::delete_source(const cxxclass& _class)
-{
-    return remove_file(directory() / _class.sourceProjectPath);
-}
-
-project project::create_new(const std::string& _name, bool _withTests)
-{
-    std::filesystem::path currentPath = std::filesystem::current_path();
-
-    std::filesystem::create_directory("includes");
-    std::filesystem::create_directory("sources");
-
-    if (_withTests)
-    {
-        std::filesystem::create_directory("tests");
-        std::filesystem::create_directory("tests/includes");
-        std::filesystem::create_directory("tests/sources");
-
-        create_tests_cmake_lists_file(currentPath / "tests", _name);
-        create_main_source_file(currentPath / "tests" / "sources");
-
-        create_cmake_lists_file_with_tests(currentPath, _name);
     }
     else
     {
-        create_cmake_lists_file(currentPath, _name);
+        std::cout << "cannot remove class !" << std::endl;
+        return false;
     }
-
-    create_main_source_file(currentPath / "sources");
-
-    return project(currentPath);
 }
 
-std::filesystem::path project::find_directory_in_hierarchy()
+bool project::rename_class(const cxxclass& _from, const cxxclass& _to)
 {
-    std::filesystem::path path = std::filesystem::current_path() / "start";
+    const std::string& sourceFrom = to_unix_path(_from.sourceProjectPath).string();
+    const std::string& sourceTo = to_unix_path(_to.sourceProjectPath).string();
+    size_t pos = cxxmPart.find(sourceFrom);
 
-    do
+    if (pos != std::string::npos)
     {
-        path = path.parent_path();
+        cxxmPart.replace(pos, sourceFrom.length(), sourceTo);
 
-        if (std::filesystem::exists(path / "CMakeLists.txt"))
-        {
-            return path;
-        }
+        std::cout << "\"" << _from.className << "\"" << " renamed to "
+                  << "\"" << _to.className << "\"" << std::endl;
 
-    } while (path.has_filename());
-
-    return path;
+        return true;
+    }
+    else
+    {
+        std::cout << "cannot rename class !" << std::endl;
+        return false;
+    }
 }
 
 bool project::parse_cmake_lists()
@@ -302,135 +207,4 @@ bool project::parse_cmake_lists()
     }
 
     return false;
-}
-
-std::string project::get_header_definition_name(const cxxclass& _class)
-{
-    std::string s = _class.headerRelativePath.string();
-
-    char c;
-    bool lastLowerCase = false;
-    bool currentUpperCase;
-
-    for (size_t i = 0; i < s.length(); i++)
-    {
-        c = s[i];
-
-        currentUpperCase = c >= 65 && c <= 92;
-
-        if (c == '/' || c == '\\')
-        {
-            s[i] = '_';
-            s.insert(i, "_");
-        }
-        else if (c == '.')
-        {
-            s[i] = '_';
-            s.insert(i, "_");
-        }
-        else if (currentUpperCase && lastLowerCase)
-        {
-            s.insert(i, "_");
-        }
-
-        s[i] = toupper(s[i]);
-
-        lastLowerCase =  c >= 97 && c <= 122;
-    }
-
-    return s;
-}
-
-void project::create_cmake_lists_file(
-    const std::filesystem::path& _path, const std::string& _projectName)
-{
-    std::ofstream file(_path / "CMakeLists.txt");
-
-    if (file.is_open())
-    {
-        file << "cmake_minimum_required(VERSION 3.1)\n";
-        file << "\n";
-        file << "project(" << _projectName << ")\n";
-        file << "\n";
-        file << "include_directories(includes)\n";
-        file << "\n";
-        file << "set(CXXM_SOURCES\n";
-        file << "#CXXM_BEGIN\n";
-        file << "sources/main.cpp)\n";
-        file << "#CXXM_END\n";
-        file << "\n";
-        file << "add_executable(" << _projectName << " ${CXXM_SOURCES})";
-
-        file.close();
-    }
-}
-
-void project::create_cmake_lists_file_with_tests(
-    const std::filesystem::path& _path, const std::string& _projectName)
-{
-    std::ofstream file(_path / "CMakeLists.txt");
-
-    if (file.is_open())
-    {
-        file << "cmake_minimum_required(VERSION 3.1)\n";
-        file << "\n";
-        file << "project(" << _projectName << ")\n";
-        file << "project(lib" << _projectName << ")\n";
-        file << "\n";
-        file << "include_directories(includes)\n";
-        file << "\n";
-        file << "add_subdirectory(tests)\n";
-        file << "\n";
-        file << "set(CXXM_SOURCES\n";
-        file << "#CXXM_BEGIN\n";
-        file << ")\n";
-        file << "#CXXM_END\n";
-        file << "\n";
-        file << "add_library(lib" << _projectName << " ${CXXM_SOURCES})\n";
-        file << "add_executable(" << _projectName << " sources/main.cpp)\n";
-        file << "target_link_libraries(" << _projectName << " lib" << _projectName << ")\n";
-
-        file.close();
-    }
-}
-
-void project::create_tests_cmake_lists_file(
-    const std::filesystem::path& _path, const std::string& _projectName)
-{
-    std::ofstream file(_path / "CMakeLists.txt");
-
-    if (file.is_open())
-    {
-        file << "project(TESTS)\n";
-        file << "\n";
-        file << "include_directories(includes)\n";
-        file << "\n";
-        file << "set(CXXM_TESTS_SOURCES\n";
-        file << "#CXXM_BEGIN\n";
-        file << "sources/main.cpp)\n";
-        file << "#CXXM_END\n";
-        file << "\n";
-        file << "add_executable(TESTS ${CXXM_TESTS_SOURCES})";
-        file << "target_link_libraries(TESTS lib" << _projectName << ")";
-
-        file.close();
-    }
-}
-
-void project::create_main_source_file(const std::filesystem::path& _path)
-{
-    std::ofstream source(_path / "main.cpp");
-
-    if (source.is_open())
-    {
-        source << "\n";
-        source << "#include <iostream>\n";
-        source << "\n";
-        source << "int main(int _argc, char* _argv[])\n";
-        source << "{\n";
-        source << "    // I love C++\n";
-        source << "}";
-
-        source.close();
-    }
 }

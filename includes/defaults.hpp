@@ -65,7 +65,7 @@
     "    \n"                            \
     "};\n"                              \
     "\n"                                \
-    "#endif // !${DEFINITION_NAME};"
+    "#endif // !${DEFINITION_NAME}"
 
 #define SOURCE_DEFAULT_FILE             \
     "\n"                                \

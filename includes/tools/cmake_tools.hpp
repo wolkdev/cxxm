@@ -1,6 +1,0 @@
-#ifndef TOOLS__CMAKE_TOOLS__HPP
-#define TOOLS__CMAKE_TOOLS__HPP
-
-
-
-#endif // !TOOLS__CMAKE_TOOLS__HPP

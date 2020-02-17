@@ -13,9 +13,9 @@ include_directories(externs)
 set(CXXM_SOURCES
 #CXXM_BEGIN
 sources/project.cpp
+sources/cxxclass.cpp
 sources/tools/file_tools.cpp
-sources/tools/parsing_tools.cpp
-sources/tools/cmake_tools.cpp)
+sources/tools/parsing_tools.cpp)
 #CXXM_END
 
 
