@@ -28,6 +28,8 @@ COMMAND
     std::fs::create_directory("includes");
     std::fs::create_directory("sources");
 
+    create_file("sources/main.cpp", MAIN_DEFAULT_FILE);
+
     if (_args[0].have_option("tests"))
     {
         std::fs::create_directory("tests");
@@ -41,16 +43,16 @@ COMMAND
 
         create_file("CMakeLists.txt", replace_all(
             CMAKE_LISTS_WITH_TESTS_DEFAULT_FILE, variables));
+
+        std::cout << "project initialized with tests" << std::endl;
     }
     else
     {
         create_file("CMakeLists.txt", replace_all(
             CMAKE_LISTS_DEFAULT_FILE, variables));
+
+        std::cout << "project initialized" << std::endl;
     }
-
-    create_file("sources/main.cpp", MAIN_DEFAULT_FILE);
-
-    std::cout << "project initialized" << std::endl;
 }
 
 COMMAND

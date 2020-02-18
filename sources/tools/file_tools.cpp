@@ -144,8 +144,9 @@ void clear_empty_directories(const std::fs::path& _path)
 bool create_file(const std::fs::path& _path, const std::string& _text)
 {
     const std::fs::path& dir = _path.parent_path();
-
-    return (std::fs::is_directory(dir)
+    
+    return (dir.empty()
+        || std::fs::is_directory(dir)
         || std::fs::create_directories(dir))
         && file_write_all_text(_path, _text);
 }
@@ -167,7 +168,8 @@ bool move_file(const std::fs::path& _from, const std::fs::path& _to)
     const std::fs::path& dir = _to.parent_path();
 
     if (std::fs::exists(_from)
-        && (std::fs::is_directory(dir)
+        && (dir.empty()
+        || std::fs::is_directory(dir)
         || std::fs::create_directories(dir)))
     {
         try

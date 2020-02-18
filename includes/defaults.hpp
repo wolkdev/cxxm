@@ -18,8 +18,8 @@
 #define CMAKE_LISTS_WITH_TESTS_DEFAULT_FILE         \
     "cmake_minimum_required(VERSION 3.1)\n"         \
     "\n"                                            \
-    "project(${MAME})\n"                            \
-    "project(lib${MAME})\n"                         \
+    "project(${NAME})\n"                            \
+    "project(lib${NAME})\n"                         \
     "\n"                                            \
     "include_directories(includes)\n"               \
     "\n"                                            \
@@ -30,9 +30,9 @@
     ")\n"                                           \
     "#CXXM_END\n"                                   \
     "\n"                                            \
-    "add_library(lib${MAME} ${CXXM_SOURCES})\n"     \
-    "add_executable(${MAME} sources/main.cpp)\n"    \
-    "target_link_libraries(${MAME} lib${MAME})\n"
+    "add_library(lib${NAME} ${CXXM_SOURCES})\n"     \
+    "add_executable(${NAME} sources/main.cpp)\n"    \
+    "target_link_libraries(${NAME} lib${NAME})\n"
 
 #define TESTS_CMAKE_LISTS_DEFAULT_FILE              \
     "project(TESTS)\n"                              \
@@ -44,8 +44,8 @@
     "sources/main.cpp)\n"                           \
     "#CXXM_END\n"                                   \
     "\n"                                            \
-    "add_executable(TESTS ${CXXM_TESTS_SOURCES})"   \
-    "target_link_libraries(TESTS lib${MAME})"
+    "add_executable(TESTS ${CXXM_TESTS_SOURCES})\n" \
+    "target_link_libraries(TESTS lib${NAME})"
 
 #define MAIN_DEFAULT_FILE                   \
     "\n"                                    \

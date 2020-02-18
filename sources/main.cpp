@@ -7,7 +7,6 @@ int main(int _argc, char const* _argv[])
     // - command line completion
     // - template file system
     // - use ctest for tests in cmakelists
-    // - refactoring
     // - unit tests
     // - check if source already exists in cmake lists
     // - customizable file content
