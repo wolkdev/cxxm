@@ -5,11 +5,10 @@ int main(int _argc, char const* _argv[])
 {
     // TODO :
     // - command line completion
-    // - template file system
     // - use ctest for tests in cmakelists
-    // - unit tests
     // - check if source already exists in cmake lists
-    // - customizable file content
+    // - change include on move / remove in all project files
+    // - unit tests
 
     if (_argc > 1)
     {

@@ -3,7 +3,6 @@
 
 #include <cmd/cmd.hpp>
 
-#include "defaults.hpp"
 #include "project.hpp"
 
 #include "tools/file_tools.hpp"
@@ -28,7 +27,7 @@ COMMAND
     std::fs::create_directory("includes");
     std::fs::create_directory("sources");
 
-    create_file("sources/main.cpp", MAIN_DEFAULT_FILE);
+    create_file("sources/main.cpp", get_file_content("main"));
 
     if (_args[0].have_option("tests"))
     {
@@ -36,20 +35,21 @@ COMMAND
         std::fs::create_directory("tests/includes");
         std::fs::create_directory("tests/sources");
 
-        create_file("tests/sources/main.cpp", MAIN_DEFAULT_FILE);
+        create_file("tests/sources/main.cpp",
+            get_file_content("main", "tests"));
 
         create_file("tests/CMakeLists.txt", replace_all(
-            TESTS_CMAKE_LISTS_DEFAULT_FILE, variables));
+            get_file_content("tests-cmakelists"), variables));
 
         create_file("CMakeLists.txt", replace_all(
-            CMAKE_LISTS_WITH_TESTS_DEFAULT_FILE, variables));
+            get_file_content("cmakelists-with-tests"), variables));
 
         std::cout << "project initialized with tests" << std::endl;
     }
     else
     {
         create_file("CMakeLists.txt", replace_all(
-            CMAKE_LISTS_DEFAULT_FILE, variables));
+            get_file_content("cmakelists"), variables));
 
         std::cout << "project initialized" << std::endl;
     }

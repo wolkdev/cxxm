@@ -3,7 +3,6 @@
 
 #include "project.hpp"
 
-#include "defaults.hpp"
 #include "tools/parsing_tools.hpp"
 
 cxxclass::cxxclass(const project& _project, const std::string& _name)
@@ -26,7 +25,8 @@ cxxclass::cxxclass(const project& _project, const std::string& _name)
 bool cxxclass::create_header()
 {
     const std::string& definitionName = definition_name();
-    const std::string& text = replace_all(HEADER_DEFAULT_FILE, variables);
+    const std::string& text = replace_all(
+        get_file_content("header"), variables);
     
     if (create_file(projectDir / headerProjectPath, text))
     {
@@ -42,7 +42,8 @@ bool cxxclass::create_header()
 
 bool cxxclass::create_source()
 {
-    const std::string& text = replace_all(SOURCE_DEFAULT_FILE, variables);
+    const std::string& text = replace_all(
+        get_file_content("source"), variables);
     
     if (create_file(projectDir / sourceProjectPath, text))
     {

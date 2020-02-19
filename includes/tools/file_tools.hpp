@@ -6,6 +6,8 @@
 
 namespace std { namespace fs = filesystem; }
 
+std::fs::path get_home_path();
+
 std::fs::path to_unix_path(const std::fs::path& _path);
 std::fs::path to_win_path(const std::fs::path& _path);
 
@@ -22,5 +24,7 @@ void clear_empty_directories(const std::fs::path& _path);
 bool create_file(const std::fs::path& _path, const std::string& _text);
 bool remove_file(const std::fs::path& _path);
 bool move_file(const std::fs::path& _from, const std::fs::path& _to);
+
+std::string get_file_content(const std::string& _name, const std::string& _id = "");
 
 #endif // !TOOLS__FILE_TOOLS__HPP

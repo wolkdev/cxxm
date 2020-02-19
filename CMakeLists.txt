@@ -7,6 +7,8 @@ project(cxxm)
 
 set(CMAKE_CXX_STANDARD 17)
 
+add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+
 include_directories(includes)
 include_directories(externs)
 

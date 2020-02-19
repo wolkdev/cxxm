@@ -3,8 +3,25 @@
 
 #include "tools/parsing_tools.hpp"
 
+#include "tools/default_file_contents.hpp"
+
 #include <iostream>
 #include <fstream>
+#include <cstdio>
+
+std::fs::path get_home_path()
+{
+    #ifdef _WIN32
+
+    return std::string(std::getenv("HOMEDRIVE"))
+        + std::string(std::getenv("HOMEPATH"));
+
+    #else
+
+    return std::string(getenv("HOME"));
+
+    #endif
+}
 
 std::fs::path to_unix_path(const std::fs::path& _path)
 {
@@ -189,4 +206,19 @@ bool move_file(const std::fs::path& _from, const std::fs::path& _to)
     }
 
     return false;
+}
+
+std::string get_file_content(const std::string& _name, const std::string& _id)
+{
+    std::string fileName = (_id != "" ? (_name + "_" + _id) : _name) + ".txt";
+    std::fs::path filePath = get_home_path() / ".cxxm" / fileName;
+
+    if (std::fs::exists(filePath))
+    {
+        return file_read_all_text(filePath);
+    }
+    else
+    {
+        return default_file_contents[_name];
+    }
 }
