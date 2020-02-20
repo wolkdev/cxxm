@@ -41,7 +41,7 @@ static std::unordered_map<std::string, std::string> default_file_contents =
         "\n"
         "add_library(lib${NAME} ${CXXM_SOURCES})\n"
         "add_executable(${NAME} sources/main.cpp)\n"
-        "target_link_libraries(${NAME} lib${NAME})\n"
+        "target_link_libraries(${NAME} lib${NAME})"
     },
     {
         "tests-cmakelists",
@@ -77,7 +77,7 @@ static std::unordered_map<std::string, std::string> default_file_contents =
         "\n"
         "class ${CLASS_NAME}\n"
         "{\n"
-        "n"
+        "    \n"
         "};\n"
         "\n"
         "#endif // !${DEFINITION_NAME}"
