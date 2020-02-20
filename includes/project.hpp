@@ -29,6 +29,8 @@ class project
     std::fs::path directory() const;
     std::fs::path local_to_project_path(const std::fs::path& _path) const;
 
+    bool have_class(const cxxclass& _class);
+
     bool add_class(const cxxclass& _class);
     bool remove_class(const cxxclass& _class);
     bool rename_class(const cxxclass& _from, const cxxclass& _to);

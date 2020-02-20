@@ -77,15 +77,22 @@ COMMAND
 
         cxxclass classToAdd(proj, path.string());
 
-        if (_args[0].have_option("header-only"))
+        if (!proj.have_class(classToAdd))
         {
-            classToAdd.create_header();
+            if (_args[0].have_option("header-only"))
+            {
+                classToAdd.create_header();
+            }
+            else if (classToAdd.create_header()
+                && classToAdd.create_source()
+                && proj.add_class(classToAdd))
+            {
+                proj.save();
+            }
         }
-        else if (classToAdd.create_header()
-            && classToAdd.create_source()
-            && proj.add_class(classToAdd))
+        else
         {
-            proj.save();
+            std::cout << "class already exists in the project !" << std::endl;
         }
     }
     else

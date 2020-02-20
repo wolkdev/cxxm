@@ -64,6 +64,12 @@ std::fs::path project::local_to_project_path(const std::fs::path& _path) const
     }
 }
 
+bool project::have_class(const cxxclass& _class)
+{
+    std::string source = to_unix_path(_class.sourceProjectPath).string();
+    return cxxmPart.find(source) != std::string::npos;
+}
+
 bool project::add_class(const cxxclass& _class)
 {
     size_t pos = cxxmPart.find(')');

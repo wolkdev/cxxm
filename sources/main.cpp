@@ -6,9 +6,9 @@ int main(int _argc, char const* _argv[])
     // TODO :
     // - command line completion
     // - use ctest for tests in cmakelists
-    // - check if source already exists in cmake lists
     // - change include on move / remove in all project files
     // - unit tests
+    // - dumb defaults function
 
     if (_argc > 1)
     {
