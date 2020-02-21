@@ -17,7 +17,8 @@ set(CXXM_SOURCES
 sources/project.cpp
 sources/cxxclass.cpp
 sources/tools/file_tools.cpp
-sources/tools/parsing_tools.cpp)
+sources/tools/parsing_tools.cpp
+sources/defaults.cpp)
 #CXXM_END
 
 

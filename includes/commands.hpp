@@ -8,6 +8,8 @@
 #include "tools/file_tools.hpp"
 #include "tools/parsing_tools.hpp"
 
+#include "defaults.hpp"
+
 #include <filesystem>
 #include <iostream>
 #include <vector>
@@ -168,6 +170,42 @@ COMMAND
     else
     {
         std::cout << "cannot find the CMakeLists.txt !" << std::endl;
+    }
+}
+
+COMMAND
+(
+    dump, 1, 2,
+    cmd::option_container(),
+    ""
+)
+{
+    if (_args[0].string == "defaults")
+    {
+        std::fs::path path;
+
+        if (_args.size() == 2)
+        {
+            path = _args[1].string;
+        }
+        else
+        {
+            path = get_home_path() / ".cxxm";
+        }
+
+        for (auto a : defaults::map)
+        {
+            if (create_file(path / a.first, a.second))
+            {
+                std::cout << "file created at path : "
+                    << path / a.first << std::endl;
+            }
+            else
+            {
+                std::cout << "fail to create file at path : "
+                    << path / a.first << std::endl;
+            }
+        }
     }
 }
 

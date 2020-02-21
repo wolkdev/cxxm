@@ -3,7 +3,7 @@
 
 #include "tools/parsing_tools.hpp"
 
-#include "tools/default_file_contents.hpp"
+#include "defaults.hpp"
 
 #include <iostream>
 #include <fstream>
@@ -219,6 +219,6 @@ std::string get_file_content(const std::string& _name, const std::string& _id)
     }
     else
     {
-        return default_file_contents[_name];
+        return defaults::map[_name];
     }
 }

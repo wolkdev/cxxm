@@ -1,10 +1,7 @@
-#ifndef DEFAULT_FILE_CONTENTS__HPP
-#define DEFAULT_FILE_CONTENTS__HPP
 
-#include <string>
-#include <unordered_map>
+#include "defaults.hpp"
 
-static std::unordered_map<std::string, std::string> default_file_contents =
+std::unordered_map<std::string, std::string> defaults::map =
 {
     {
         "cmakelists",
@@ -90,5 +87,3 @@ static std::unordered_map<std::string, std::string> default_file_contents =
         "\n"
     },
 };
-
-#endif // !DEFAULT_FILE_CONTENTS__HPP
