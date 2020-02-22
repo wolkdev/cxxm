@@ -211,7 +211,7 @@ bool move_file(const std::fs::path& _from, const std::fs::path& _to)
 std::string get_file_content(const std::string& _name, const std::string& _id)
 {
     std::string fileName = (_id != "" ? (_name + "_" + _id) : _name) + ".txt";
-    std::fs::path filePath = get_home_path() / ".cxxm" / fileName;
+    std::fs::path filePath = get_home_path() / ".cxxm" / "files" / fileName;
 
     if (std::fs::exists(filePath))
     {

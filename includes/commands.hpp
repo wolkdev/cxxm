@@ -182,28 +182,28 @@ COMMAND
 {
     if (_args[0].string == "defaults")
     {
-        std::fs::path path;
+        std::fs::path dir;
 
         if (_args.size() == 2)
         {
-            path = _args[1].string;
+            dir = _args[1].string;
         }
         else
         {
-            path = get_home_path() / ".cxxm";
+            dir = get_home_path() / ".cxxm" / "files";
         }
 
         for (auto a : defaults::map)
         {
-            if (create_file(path / a.first, a.second))
+            const std::fs::path path = dir / (a.first + ".txt");
+
+            if (create_file(path, a.second))
             {
-                std::cout << "file created at path : "
-                    << path / a.first << std::endl;
+                std::cout << "file created at path : " << path << std::endl;
             }
             else
             {
-                std::cout << "fail to create file at path : "
-                    << path / a.first << std::endl;
+                std::cout << "fail to create file at path : " << path << std::endl;
             }
         }
     }
