@@ -17,12 +17,20 @@
 COMMAND
 (
     init, 1, 1,
+
     cmd::option_container
     ({
         { "directory" },
         { "tests" }
     }),
-    ""
+
+    "Init a new project with a basic CMakeLists.txt in the current directory\n"
+    "\n"
+    "Options :\n"
+    "\n"
+    "    --directory -d : Init the project in a new created directory\n"
+    "\n"
+    "    --tests -t : Init the project with a tests sub-project"
 )
 {
     std::vector<variable> variables = { { "${NAME}", _args[0].string } };
@@ -71,12 +79,29 @@ COMMAND
 COMMAND
 (
     add, 1, 1,
+
     cmd::option_container
     ({
         { "local", "global" },
         { "header-only" }
     }),
-    ""
+    
+    "Create class header and source files and add "
+    "the source to the CMakeLists.txt file\n"
+    "\n"
+    "* Note that cxxm will automatically create directories "
+    "that don't already exists\n"
+    "\n"
+    "Options :\n"
+    "\n"
+    "    --header-only : Only create the header file\n"
+    "\n"
+    "    --global -g : Path is relative to the sources / includes folder "
+    "(that's the default behavior)\n"
+    "\n"
+    "    --local -l : Path is local to your current position. "
+    "So you need to be in the sources or includes folder "
+    "otherwise the command fail"
 )
 {
     std::fs::path cmakeListsPath;
@@ -117,9 +142,24 @@ COMMAND
 COMMAND
 (
     remove, 1, 1,
+
     cmd::option_container
     ({ { "local", "global" } }),
-    ""
+    
+    "Remove class header and source files and "
+    "remove the source from the CMakeLists.txt file\n"
+    "\n"
+    "* Note that cxxm will automatically delete empty directories "
+    "after a file remove\n"
+    "\n"
+    "Options :\n"
+    "\n"
+    "    --global -g : Path is relative to the sources / includes folder "
+    "(that's the default behavior)\n"
+    "\n"
+    "    --local -l : Path is local to your current position. "
+    "So you need to be in the sources or includes folder "
+    "otherwise the command fail"
 )
 {
     std::fs::path cmakeListsPath;
@@ -150,11 +190,29 @@ COMMAND
 COMMAND
 (
     move, 2, 2,
+
     cmd::option_container
     ({
         { "local", "global" }
     }),
-    ""
+    
+    "Move class header and source files and "
+    "rename the source in the CMakeLists.txt file.\n"
+    "also rename the include reference in the source and "
+    "the header's definition name\n"
+    "\n"
+    "* Note that cxxm will automatically create directories "
+    "that don't already exists\n"
+    "and delete empty directories after a file move\n"
+    "\n"
+    "Options :\n"
+    "\n"
+    "    --global -g : Path is relative to the sources / includes folder "
+    "(that's the default behavior)\n"
+    "\n"
+    "    --local -l : Path is local to your current position. "
+    "So you need to be in the sources or includes folder "
+    "otherwise the command fail"
 )
 {
     std::fs::path cmakeListsPath;
@@ -186,25 +244,19 @@ COMMAND
 
 COMMAND
 (
-    dump, 1, 2,
+    dump, 1, 1,
+
     cmd::option_container(),
-    ""
+
+    "Dump default contents files in the <user>/.cxxm/files directory\n"
+    "so you can overwrite the content used by cxxm to create files"
 )
 {
     if (_args[0].string == "defaults")
     {
-        std::fs::path dir;
+        std::fs::path dir = get_home_path() / ".cxxm" / "files";
 
-        if (_args.size() == 2)
-        {
-            dir = _args[1].string;
-        }
-        else
-        {
-            dir = get_home_path() / ".cxxm" / "files";
-        }
-
-        for (auto a : defaults::map)
+        for (const auto& a : defaults::map)
         {
             const std::fs::path path = dir / (a.first + ".txt");
 

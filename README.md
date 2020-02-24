@@ -21,11 +21,11 @@ cxxm init (<options>) [<project-name>]
 
 Init a new project with a basic CMakeLists.txt in the current directory
 
-__options__ :
+__Options__ :
 
-- __--directory__ | __-d__ : init the project in a new created directory
+- __--directory__ | __-d__ : Init the project in a new created directory
 
-- __--tests__ | __-t__ : init the project with a tests sub-project
+- __--tests__ | __-t__ : Init the project with a tests sub-project
 
 #### add
 
@@ -36,13 +36,13 @@ cxxm add (<options>) [<paths>]
 Create class header and source files and add the source to the CMakeLists.txt file
 > Note that cxxm will automatically create directories that don't already exists
 
-__options__ :
+__Options__ :
 
-- __--header-only__ | __-h__ : only create the header file
+- __--header-only__ | __-h__ : Only create the header file
 
-- __--global__ | __-g__ : path is relative to the sources / includes folder (that's the default behavior)
+- __--global__ | __-g__ : Path is relative to the sources / includes folder (that's the default behavior)
 
-- __--local__ | __-l__ : path is local to your current position. So you need to be in the sources or includes folder otherwise the command fail
+- __--local__ | __-l__ : Path is local to your current position. So you need to be in the sources or includes folder otherwise the command fail
 
 #### move
 
@@ -54,11 +54,11 @@ Move class header and source files and rename the source in the CMakeLists.txt f
 
 > Note that cxxm will automatically create directories that don't already exists and delete empty directories after a file move
 
-__options__ :
+__Options__ :
 
-- __--global__ | __-g__ : path is relative to the sources / includes folder (that's the default behavior)
+- __--global__ | __-g__ : Path is relative to the sources / includes folder (that's the default behavior)
 
-- __--local__ | __-l__ : path is local to your current position. So you need to be in the sources or includes folder otherwise the command fail
+- __--local__ | __-l__ : Path is local to your current position. So you need to be in the sources or includes folder otherwise the command fail
 
 #### remove
 
@@ -70,11 +70,11 @@ Remove class header and source files and remove the source from the CMakeLists.t
 
 > Note that cxxm will automatically delete empty directories after a file remove
 
-__options__ :
+__Options__ :
 
-- __--global__ | __-g__ : path is relative to the sources / includes folder (that's the default behavior)
+- __--global__ | __-g__ : Path is relative to the sources / includes folder (that's the default behavior)
 
-- __--local__ | __-l__ : path is local to your current position. So you need to be in the sources or includes folder otherwise the command fail
+- __--local__ | __-l__ : Path is local to your current position. So you need to be in the sources or includes folder otherwise the command fail
 
 #### dump defaults
 
@@ -83,6 +83,20 @@ cxxm dump defaults
 ```
 
 Dump default contents files in the \<user\>/.cxxm/files directory so you can overwrite the content used by cxxm to create files
+
+### Helps
+
+You can type __--help__ option on any commands to get helps directly in your terminal
+
+```txt
+cxxm init --help
+```
+
+or
+
+```txt
+cxxm init -h
+```
 
 ### Basic CMakeLists.txt
 
