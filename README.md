@@ -23,6 +23,8 @@ Init a new project with a basic CMakeLists.txt in the current directory
 
 __options__ :
 
+- __--directory__ | __-d__ : init the project in a new created directory
+
 - __--tests__ | __-t__ : init the project with a tests sub-project
 
 #### add

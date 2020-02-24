@@ -19,6 +19,7 @@ COMMAND
     init, 1, 1,
     cmd::option_container
     ({
+        { "directory" },
         { "tests" }
     }),
     ""
@@ -26,34 +27,44 @@ COMMAND
 {
     std::vector<variable> variables = { { "${NAME}", _args[0].string } };
 
-    std::fs::create_directory("includes");
-    std::fs::create_directory("sources");
+    std::fs::path directory = std::fs::current_path();
 
-    create_file("sources/main.cpp", get_file_content("main"));
+    if (_args[0].have_option("directory"))
+    {
+        std::fs::create_directory(_args[0].string);
+        directory = directory / _args[0].string;
+    }
+
+    std::fs::create_directory(directory / "includes");
+    std::fs::create_directory(directory / "sources");
+
+    create_file(directory / "sources/main.cpp", get_file_content("main"));
 
     if (_args[0].have_option("tests"))
     {
-        std::fs::create_directory("tests");
-        std::fs::create_directory("tests/includes");
-        std::fs::create_directory("tests/sources");
+        std::fs::create_directory(directory / "tests");
+        std::fs::create_directory(directory / "tests/includes");
+        std::fs::create_directory(directory / "tests/sources");
 
-        create_file("tests/sources/main.cpp",
+        create_file(directory / "tests/sources/main.cpp",
             get_file_content("main", "tests"));
 
-        create_file("tests/CMakeLists.txt", replace_all(
+        create_file(directory / "tests/CMakeLists.txt", replace_all(
             get_file_content("tests-cmakelists"), variables));
 
-        create_file("CMakeLists.txt", replace_all(
+        create_file(directory / "CMakeLists.txt", replace_all(
             get_file_content("cmakelists-with-tests"), variables));
 
-        std::cout << "project initialized with tests" << std::endl;
+        std::cout << "project initialized with tests in directory : "
+            << directory << std::endl;
     }
     else
     {
-        create_file("CMakeLists.txt", replace_all(
+        create_file(directory / "CMakeLists.txt", replace_all(
             get_file_content("cmakelists"), variables));
 
-        std::cout << "project initialized" << std::endl;
+        std::cout << "project initialized in directory : "
+            << directory << std::endl;
     }
 }
 
