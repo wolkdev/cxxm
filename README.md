@@ -5,6 +5,17 @@ it was not tested / optimized for every case / configurations
 
 cxxm is a command line tool for managing cmake built c++ projects. you can add, delete or move your source and header files and automatically manage your CMakeLists.txt sources with one command line.
 
+## Cloning the repo
+
+This repo have one submodule : [cmd](https://github.com/wolkdev/cmd)
+
+So don't forget to init and update the submodules.
+
+```txt
+git submodule init
+git submodule update
+```
+
 ## Installation
 
 Build the cxxm project with cmake
