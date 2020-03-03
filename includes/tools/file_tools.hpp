@@ -3,6 +3,7 @@
 
 #include <string>
 #include <filesystem>
+#include <vector>
 
 namespace std { namespace fs = filesystem; }
 
@@ -26,5 +27,9 @@ bool remove_file(const std::fs::path& _path);
 bool move_file(const std::fs::path& _from, const std::fs::path& _to);
 
 std::string get_file_content(const std::string& _name, const std::string& _id = "");
+
+std::vector<std::fs::path> get_all_files(
+    const std::fs::path& _directory,
+    const std::vector<std::string>& _extensions = { });
 
 #endif // !TOOLS__FILE_TOOLS__HPP

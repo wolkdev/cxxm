@@ -193,6 +193,7 @@ COMMAND
 
     cmd::option_container
     ({
+        { "recursive" },
         { "local", "global" }
     }),
     
@@ -206,6 +207,8 @@ COMMAND
     "and delete empty directories after a file move\n"
     "\n"
     "Options :\n"
+    "\n"
+    "    --recursive -r : Replace the moved header includes in all project files"
     "\n"
     "    --global -g : Path is relative to the sources / includes folder "
     "(that's the default behavior)\n"
@@ -230,10 +233,17 @@ COMMAND
         cxxclass classMoved(proj, path2.string());
 
         if (classToMove.move_header(classMoved)
-            && classToMove.move_source(classMoved)
-            && proj.rename_class(classToMove, classMoved))
+            && classToMove.move_source(classMoved))
         {
-            proj.save();
+            if (_args[0].have_option("recursive"))
+            {
+                classToMove.replace_all_includes(classMoved);
+            }
+
+            if (proj.rename_class(classToMove, classMoved))
+            {
+                proj.save();
+            }
         }
     }
     else

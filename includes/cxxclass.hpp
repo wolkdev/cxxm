@@ -29,6 +29,8 @@ class cxxclass
     bool move_header(const cxxclass& _other);
     bool move_source(const cxxclass& _other);
 
+    void replace_all_includes(const cxxclass& _other);
+
     std::string definition_name() const;
 };
 

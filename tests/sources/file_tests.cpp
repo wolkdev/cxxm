@@ -23,5 +23,5 @@ TEST_CASE("get_path_diff", "[file_tools.hpp]")
     std::fs::path diff = get_path_diff(
         "absolute/path/to/file", "absolute/path");
 
-    REQUIRE(to_unix_path(diff) == "to/file/");
+    REQUIRE(to_unix_path(diff) == "to/file");
 }

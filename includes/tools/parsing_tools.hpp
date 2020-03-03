@@ -17,7 +17,11 @@ struct variable
 std::string peek_word(std::istream& _istream);
 void skip_word(std::istream& _istream);
 
-void replace_all(
+bool contains_string(
+    const std::vector<std::string>& _vector,
+    const std::string& _string);
+
+bool replace_all(
     std::string& _string,
     const std::string& _from,
     const std::string& _to);

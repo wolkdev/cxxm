@@ -93,11 +93,16 @@ bool cxxclass::move_header(const cxxclass& _other)
     if (move_file(from, to))
     {
         std::string& text = file_read_all_text(to);
-        replace_all(text, definition_name(), _other.definition_name());
-        file_write_all_text(to, text);
+
+        if (replace_all(text,
+            definition_name(),
+            _other.definition_name()))
+        {
+            file_write_all_text(to, text);
+        }
 
         std::cout << "header moved from : " << headerProjectPath
-                  << " to : " << headerProjectPath << std::endl;
+                  << " to : " << _other.headerProjectPath << std::endl;
 
         return true;
     }
@@ -118,8 +123,13 @@ bool cxxclass::move_source(const cxxclass& _other)
     if (move_file(from, to))
     {
         std::string& text = file_read_all_text(to);
-        replace_all(text, headerRelativePath.string(), _other.headerRelativePath.string());
-        file_write_all_text(to, text);
+
+        if (replace_all(text,
+            headerRelativePath.string(),
+            _other.headerRelativePath.string()))
+        {
+            file_write_all_text(to, text);            
+        }
 
         std::cout << "source moved from : " << sourceProjectPath
                   << " to : " << _other.sourceProjectPath << std::endl;
@@ -132,6 +142,46 @@ bool cxxclass::move_source(const cxxclass& _other)
                   << " to : " << _other.sourceProjectPath << std::endl;
 
         return false;
+    }
+}
+
+void cxxclass::replace_all_includes(const cxxclass& _other)
+{
+    const auto& headers = get_all_files(projectDir / "includes");
+    const auto& sources = get_all_files(projectDir / "sources");
+
+    for (const auto& header : headers)
+    {
+        std::string& text = file_read_all_text(header);
+
+        if (replace_all(text,
+            headerRelativePath.string(),
+            _other.headerRelativePath.string()))
+        {
+            if (file_write_all_text(header, text))
+            {
+                std::cout << "include replaced in file : "
+                          << get_path_diff(header, projectDir)
+                          << std::endl;
+            }
+        }
+    }
+
+    for (const auto& source : sources)
+    {
+        std::string& text = file_read_all_text(source);
+
+        if (replace_all(text,
+            headerRelativePath.string(),
+            _other.headerRelativePath.string()))
+        {
+            if (file_write_all_text(source, text))
+            {
+                std::cout << "include replaced in file : "
+                          << get_path_diff(source, projectDir)
+                          << std::endl;
+            }
+        }
     }
 }
 

@@ -26,12 +26,28 @@ void skip_word(std::istream& _istream)
     }
 }
 
-void replace_all(
+bool contains_string(
+    const std::vector<std::string>& _vector,
+    const std::string& _string)
+{
+    for (size_t i = 0; i < _vector.size(); i++)
+    {
+        if (_vector[i] == _string)
+        {
+            return true;
+        }
+    }
+    
+    return false;
+}
+
+bool replace_all(
     std::string& _string,
     const std::string& _from,
     const std::string& _to)
 {
     size_t pos = 0;
+    bool dirty = false;
 
     do
     {
@@ -41,9 +57,12 @@ void replace_all(
         {
             _string.replace(pos, _from.length(), _to);
             pos += _to.length();
+            dirty = true;
         }
 
     } while (pos != std::string::npos && pos < _string.length());
+
+    return dirty;
 }
 
 std::string replace_all(

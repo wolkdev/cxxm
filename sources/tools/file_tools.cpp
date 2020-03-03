@@ -72,7 +72,15 @@ std::fs::path get_path_diff(const std::fs::path& _path, const std::fs::path& _ba
 
     while (temp != _base && temp.has_filename())
     {
-        diff = temp.filename() / diff;
+        if (diff.empty())
+        {
+            diff = temp.filename();
+        }
+        else
+        {
+            diff = temp.filename() / diff;
+        }
+
         temp = temp.parent_path();
     }
     
@@ -221,4 +229,27 @@ std::string get_file_content(const std::string& _name, const std::string& _id)
     {
         return defaults::map[_name];
     }
+}
+
+std::vector<std::fs::path> get_all_files(
+    const std::fs::path& _directory,
+    const std::vector<std::string>& _extensions)
+{
+    std::vector<std::fs::path> filePaths;
+
+    for (const auto& entry : std::fs::recursive_directory_iterator(_directory))
+    {
+        if (!entry.is_directory())
+        {
+            const std::string& extension = entry.path().extension().string();
+
+            if (_extensions.size() == 0
+                || contains_string(_extensions, extension))
+            {
+                filePaths.push_back(entry.path());
+            }
+        }
+    }
+
+    return filePaths;
 }

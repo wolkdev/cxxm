@@ -25,8 +25,8 @@ TEST_CASE("skip_word", "[parsing_tools.hpp]")
 TEST_CASE("replace_all", "[parsing_tools.hpp]")
 {
     std::string s = "this is a simple test with a simple word to replace";
-    replace_all(s, "simple", "complex");
-
+    
+    REQUIRE(replace_all(s, "simple", "complex"));
     REQUIRE(s == "this is a complex test with a complex word to replace");
 }
 
