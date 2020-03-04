@@ -144,7 +144,10 @@ COMMAND
     remove, 1, 1,
 
     cmd::option_container
-    ({ { "local", "global" } }),
+    ({
+        { "recursive" },
+        { "local", "global" }
+    }),
     
     "Remove class header and source files and "
     "remove the source from the CMakeLists.txt file\n"
@@ -153,6 +156,9 @@ COMMAND
     "after a file remove\n"
     "\n"
     "Options :\n"
+    "\n"
+    "    --recursive -r : Remove the removed header's includes "
+    "in all project files"
     "\n"
     "    --global -g : Path is relative to the sources / includes folder "
     "(that's the default behavior)\n"
@@ -175,6 +181,12 @@ COMMAND
 
         classToRemove.remove_header();
         classToRemove.remove_source();
+
+        if (_args[0].have_option("recursive"))
+        {
+            classToRemove.remove_all_includes(
+                proj.get_all_project_files());
+        }
 
         if (proj.remove_class(classToRemove))
         {
@@ -208,7 +220,8 @@ COMMAND
     "\n"
     "Options :\n"
     "\n"
-    "    --recursive -r : Replace the moved header includes in all project files"
+    "    --recursive -r : Replace the moved header's includes "
+    "in all project files"
     "\n"
     "    --global -g : Path is relative to the sources / includes folder "
     "(that's the default behavior)\n"
@@ -237,7 +250,8 @@ COMMAND
         {
             if (_args[0].have_option("recursive"))
             {
-                classToMove.replace_all_includes(classMoved);
+                classToMove.replace_all_includes(
+                    proj.get_all_project_files(), classMoved);
             }
 
             if (proj.rename_class(classToMove, classMoved))

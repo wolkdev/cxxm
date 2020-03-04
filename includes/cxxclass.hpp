@@ -4,6 +4,8 @@
 #include "tools/file_tools.hpp"
 #include "tools/parsing_tools.hpp"
 
+#include <vector>
+
 class project;
 
 class cxxclass
@@ -29,7 +31,12 @@ class cxxclass
     bool move_header(const cxxclass& _other);
     bool move_source(const cxxclass& _other);
 
-    void replace_all_includes(const cxxclass& _other);
+    void remove_all_includes(
+        const std::vector<std::fs::path>& _files);
+
+    void replace_all_includes(
+        const std::vector<std::fs::path>& _files,
+        const cxxclass& _other);
 
     std::string definition_name() const;
 };

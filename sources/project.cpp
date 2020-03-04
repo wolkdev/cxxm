@@ -64,6 +64,27 @@ std::fs::path project::local_to_project_path(const std::fs::path& _path) const
     }
 }
 
+std::vector<std::fs::path> project::get_all_project_files() const
+{
+    const auto& headers = get_all_files(directory() / "includes");
+    const auto& sources = get_all_files(directory() / "sources");
+
+    std::vector<std::fs::path> paths;
+    paths.reserve(headers.size() + sources.size());
+
+    for (const auto& header : headers)
+    {
+        paths.push_back(get_path_diff(header, directory()));
+    }
+
+    for (const auto& source : sources)
+    {
+        paths.push_back(get_path_diff(source, directory()));
+    }
+
+    return paths;
+}
+
 bool project::have_class(const cxxclass& _class)
 {
     std::string source = to_unix_path(_class.sourceProjectPath).string();

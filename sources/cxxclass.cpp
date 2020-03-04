@@ -145,41 +145,43 @@ bool cxxclass::move_source(const cxxclass& _other)
     }
 }
 
-void cxxclass::replace_all_includes(const cxxclass& _other)
+void cxxclass::remove_all_includes(
+    const std::vector<std::fs::path>& _files)
 {
-    const auto& headers = get_all_files(projectDir / "includes");
-    const auto& sources = get_all_files(projectDir / "sources");
+    const std::string& include =
+        "#include \"" + headerRelativePath.string() + "\"\n";
 
-    for (const auto& header : headers)
+    for (const auto& file : _files)
     {
-        std::string& text = file_read_all_text(header);
+        std::string& text = file_read_all_text(file);
 
-        if (replace_all(text,
-            headerRelativePath.string(),
-            _other.headerRelativePath.string()))
+        if (replace_all(text, include, ""))
         {
-            if (file_write_all_text(header, text))
+            if (file_write_all_text(file, text))
             {
-                std::cout << "include replaced in file : "
-                          << get_path_diff(header, projectDir)
-                          << std::endl;
+                std::cout << "include removed in file : "
+                          << file << std::endl;
             }
         }
     }
+}
 
-    for (const auto& source : sources)
+void cxxclass::replace_all_includes(
+    const std::vector<std::fs::path>& _files,
+    const cxxclass& _other)
+{
+    for (const auto& file : _files)
     {
-        std::string& text = file_read_all_text(source);
+        std::string& text = file_read_all_text(file);
 
         if (replace_all(text,
             headerRelativePath.string(),
             _other.headerRelativePath.string()))
         {
-            if (file_write_all_text(source, text))
+            if (file_write_all_text(file, text))
             {
                 std::cout << "include replaced in file : "
-                          << get_path_diff(source, projectDir)
-                          << std::endl;
+                          << file << std::endl;
             }
         }
     }

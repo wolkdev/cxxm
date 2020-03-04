@@ -55,6 +55,24 @@ __Options__ :
 
 - __--local__ | __-l__ : Path is local to your current position. So you need to be in the sources or includes folder otherwise the command fail
 
+#### remove
+
+```txt
+cxxm remove (<options>) [<path>]
+```
+
+Remove class header and source files and remove the source from the CMakeLists.txt file
+
+> Note that cxxm will automatically delete empty directories after a file remove
+
+__Options__ :
+
+- __--recursive__ | __-r__ : Remove the removed header's includes in all project files
+
+- __--global__ | __-g__ : Path is relative to the sources / includes folder (that's the default behavior)
+
+- __--local__ | __-l__ : Path is local to your current position. So you need to be in the sources or includes folder otherwise the command fail
+
 #### move
 
 ```txt
@@ -67,23 +85,7 @@ Move class header and source files and rename the source in the CMakeLists.txt f
 
 __Options__ :
 
-- __--recursive__ | __-r__ : Replace the moved header includes in all project files
-
-- __--global__ | __-g__ : Path is relative to the sources / includes folder (that's the default behavior)
-
-- __--local__ | __-l__ : Path is local to your current position. So you need to be in the sources or includes folder otherwise the command fail
-
-#### remove
-
-```txt
-cxxm remove (<options>) [<path>]
-```
-
-Remove class header and source files and remove the source from the CMakeLists.txt file
-
-> Note that cxxm will automatically delete empty directories after a file remove
-
-__Options__ :
+- __--recursive__ | __-r__ : Replace the moved header's includes in all project files
 
 - __--global__ | __-g__ : Path is relative to the sources / includes folder (that's the default behavior)
 

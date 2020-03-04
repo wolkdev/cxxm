@@ -3,6 +3,7 @@
 
 #include <filesystem>
 #include <string>
+#include <vector>
 
 #include "cxxclass.hpp"
 
@@ -28,6 +29,8 @@ class project
     bool valid() const;
     std::fs::path directory() const;
     std::fs::path local_to_project_path(const std::fs::path& _path) const;
+
+    std::vector<std::fs::path> get_all_project_files() const;
 
     bool have_class(const cxxclass& _class);
 

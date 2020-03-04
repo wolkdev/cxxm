@@ -6,7 +6,7 @@ int main(int _argc, char const* _argv[])
     // TODO :
     // - command line completion
     // - use ctest for tests in cmakelists
-    // - remove --recursive option
+    // - command list : list all project files
 
     if (_argc > 1)
     {
